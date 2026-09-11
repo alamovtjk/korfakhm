@@ -134,7 +134,11 @@
 
 /* ── Reset / base ── */
 *, *::before, *::after { box-sizing: border-box; }
-html { scrollbar-gutter: stable; scroll-behavior: auto; scroll-padding-top: 88px; }
+/* overflow-x:hidden нужен и на html, и на body: position:fixed-элементы
+   (космический .bg-stage с пятнами) позиционируются от html как от
+   корневого блока и не обрезаются overflow-ом одного только body — без
+   этого на узких экранах появлялась горизонтальная прокрутка. */
+html { scrollbar-gutter: stable; scroll-behavior: auto; scroll-padding-top: 88px; overflow-x: hidden; }
 body {
   margin: 0;
   font-family: 'Manrope', system-ui, -apple-system, sans-serif;
@@ -188,24 +192,37 @@ h4, h5 { font-family: 'Manrope', sans-serif; }
   overflow: hidden; background: var(--bg);
   pointer-events: none;
 }
-.blob { position: absolute; border-radius: 50%; filter: blur(90px); pointer-events: none; will-change: transform; }
-.blob.v { width: 640px; height: 640px; opacity: .28; background: radial-gradient(circle at 40% 40%, #a78bfa, transparent 70%); top: -260px; left: -160px; animation: driftA 70s ease-in-out infinite alternate; }
-.blob.t { width: 620px; height: 620px; opacity: .24; background: radial-gradient(circle at 55% 55%, #5eead4, transparent 70%); top: -120px; right: -220px; animation: driftB 84s ease-in-out infinite alternate; }
-.blob.f { width: 560px; height: 560px; opacity: .18; background: radial-gradient(circle at 50% 50%, #e879f9, transparent 70%); bottom: -240px; left: 30%; animation: driftC 96s ease-in-out infinite alternate; }
+/* Размер — clamp(), не фиксированные px: пятно масштабируется с шириной
+   экрана вместо того, чтобы быть непропорционально огромным на телефоне
+   и мелким на широком мониторе. Яркость заметно выше прежней — это
+   основной фон КАЖДОЙ страницы (SpaceBg монтируется один раз в App.jsx
+   поверх Routes), не только лендинга. */
+.blob { position: absolute; border-radius: 50%; filter: blur(min(90px, 9vw)); pointer-events: none; will-change: transform; }
+.blob.v { width: clamp(340px, 46vw, 640px); height: clamp(340px, 46vw, 640px); opacity: .40; background: radial-gradient(circle at 40% 40%, #a78bfa, transparent 70%); top: -18vw; left: -12vw; animation: driftA 70s ease-in-out infinite alternate; }
+.blob.t { width: clamp(320px, 44vw, 620px); height: clamp(320px, 44vw, 620px); opacity: .36; background: radial-gradient(circle at 55% 55%, #5eead4, transparent 70%); top: -9vw; right: -15vw; animation: driftB 84s ease-in-out infinite alternate; }
+.blob.f { width: clamp(300px, 40vw, 560px); height: clamp(300px, 40vw, 560px); opacity: .28; background: radial-gradient(circle at 50% 50%, #e879f9, transparent 70%); bottom: -17vw; left: 30%; animation: driftC 96s ease-in-out infinite alternate; }
 @keyframes driftA { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(30px,20px,0) scale(1.06); } }
 @keyframes driftB { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(-25px,25px,0) scale(1.05); } }
 @keyframes driftC { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(20px,-25px,0) scale(1.08); } }
 @media (prefers-reduced-motion: reduce) { .blob { animation: none; } }
-:root.dark .blob.v { opacity: .40; }
-:root.dark .blob.t { opacity: .34; }
-:root.dark .blob.f { opacity: .26; }
+:root.dark .blob.v { opacity: .58; }
+:root.dark .blob.t { opacity: .50; }
+:root.dark .blob.f { opacity: .40; }
 .blob.b { display: none; }
 .sky, .neb, .gx-field, .ship { display: none; }
 
 /* Локальные пятна ниже по странице — обычные .blob, но абсолютно
    спозиционированные внутри секции (едут вместе с контентом), чтобы
    страница не выглядела оформленной только у шапки. */
-.section-glow { position: absolute; z-index: 0; pointer-events: none; }
+.section-glow {
+  position: absolute; z-index: 0; pointer-events: none; border-radius: 50%;
+  filter: blur(min(80px, 8vw));
+  width: clamp(260px, 34vw, 480px); height: clamp(260px, 34vw, 480px);
+}
+.glow-process { top: -6vw; left: -9vw; opacity: .30; background: radial-gradient(circle at 55% 55%, #5eead4, transparent 70%); }
+.glow-cta { bottom: -12vw; right: -10vw; opacity: .30; background: radial-gradient(circle at 40% 40%, #a78bfa, transparent 70%); }
+:root.dark .glow-process { opacity: .44; }
+:root.dark .glow-cta { opacity: .48; }
 
 /* ── Полоса прогресса прокрутки ── */
 .progress { position: fixed; top: 0; left: 0; width: 100%; height: 2px; z-index: 100; background: linear-gradient(90deg, var(--violet), var(--teal)); transform-origin: left; transform: scaleX(0); will-change: transform; }
@@ -508,21 +525,18 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline: non
 .hero-glow-stage { position: relative; padding: 30px 0 70px; display: flex; justify-content: center; }
 .hero-glow {
   position: absolute; z-index: 0; top: 50%; left: 50%;
-  width: min(1100px, 92vw); height: 560px;
+  width: min(1100px, 94vw); height: clamp(320px, 46vw, 560px);
   transform: translate(-50%, -50%);
   background:
-    radial-gradient(ellipse 46% 70% at 30% 45%, color-mix(in oklab, var(--violet) 75%, transparent), transparent 72%),
-    radial-gradient(ellipse 40% 62% at 68% 40%, color-mix(in oklab, var(--fuchsia) 65%, transparent), transparent 70%),
-    radial-gradient(ellipse 46% 68% at 50% 70%, color-mix(in oklab, var(--teal) 70%, transparent), transparent 72%);
-  filter: blur(70px);
-  opacity: .55;
+    radial-gradient(ellipse 46% 70% at 30% 45%, color-mix(in oklab, var(--violet) 85%, transparent), transparent 72%),
+    radial-gradient(ellipse 40% 62% at 68% 40%, color-mix(in oklab, var(--fuchsia) 78%, transparent), transparent 70%),
+    radial-gradient(ellipse 46% 68% at 50% 70%, color-mix(in oklab, var(--teal) 82%, transparent), transparent 72%);
+  filter: blur(min(70px, 7vw));
+  opacity: .72;
   pointer-events: none;
 }
-:root.dark .hero-glow { opacity: .7; }
+:root.dark .hero-glow { opacity: .9; }
 .hero-visual-center { position: relative; z-index: 1; width: 100%; max-width: 420px; }
-@media (max-width: 640px) {
-  .hero-glow { height: 420px; filter: blur(50px); }
-}
 
 /* Плавающая карточка результата — белая, как мокап в референсах */
 .fcard {
