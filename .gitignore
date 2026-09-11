@@ -24,3 +24,4 @@ frontend/*.png
 .DS_Store
 Thumbs.db
 *.log
+.env.local
