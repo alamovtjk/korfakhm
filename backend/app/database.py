@@ -1,5 +1,5 @@
 import os
-from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
+from urllib.parse import urlsplit, urlunsplit
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
@@ -11,11 +11,13 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 _PG_ENV_CANDIDATES = ('DATABASE_URL', 'POSTGRES_URL', 'POSTGRES_PRISMA_URL', 'POSTGRES_URL_NON_POOLING')
 _raw_url = next((os.getenv(k) for k in _PG_ENV_CANDIDATES if os.getenv(k)), None)
 
-# asyncpg получает каждый query-параметр URL как именованный аргумент
-# connect() и падает на незнакомых — Neon добавляет в строку подключения
-# "channel_binding", которого asyncpg не знает (это специфика psycopg).
-# "sslmode" asyncpg понимает сам, его не трогаем.
-_ASYNCPG_UNSUPPORTED_PARAMS = {'channel_binding'}
+# SQLAlchemy передаёт КАЖДЫЙ query-параметр URL как именованный аргумент
+# в asyncpg.connect() — а у asyncpg свой набор параметров (ssl=...), не
+# libpq-шный (sslmode=..., channel_binding=...). Neon добавляет в строку
+# подключения оба, поэтому просто выбрасываем весь query целиком и
+# требуем TLS через connect_args ниже — Neon всё равно принимает только
+# TLS-соединения.
+_IS_POSTGRES = False
 
 
 def _normalize_pg_url(raw: str) -> str:
@@ -23,13 +25,21 @@ def _normalize_pg_url(raw: str) -> str:
     # SQLAlchemy async нужен драйвер явно, через "+asyncpg".
     raw = raw.replace('postgres://', 'postgresql+asyncpg://', 1).replace('postgresql://', 'postgresql+asyncpg://', 1)
     parts = urlsplit(raw)
-    query = [(k, v) for k, v in parse_qsl(parts.query) if k not in _ASYNCPG_UNSUPPORTED_PARAMS]
-    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, '', parts.fragment))
 
 
-DATABASE_URL = _normalize_pg_url(_raw_url) if _raw_url else 'sqlite+aiosqlite:///./tajcareer.db'
+if _raw_url:
+    DATABASE_URL = _normalize_pg_url(_raw_url)
+    _IS_POSTGRES = True
+else:
+    DATABASE_URL = 'sqlite+aiosqlite:///./tajcareer.db'
 
-engine = create_async_engine(DATABASE_URL, echo=False, future=True)
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=False,
+    future=True,
+    connect_args={'ssl': 'require'} if _IS_POSTGRES else {},
+)
 
 AsyncSessionLocal = sessionmaker(
     engine,
