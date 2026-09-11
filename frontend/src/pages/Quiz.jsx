@@ -140,6 +140,13 @@ export default function Quiz() {
       else c.EC++
     })
     const top = Object.entries(c).sort((a, b) => b[1] - a[1])[0][0]
+    // Доля ответов в каждой корзине, а не фиксированный множитель — раньше
+    // было *4, откалиброванное под старые 25 вопросов (25*4=100 — потолок
+    // шкалы). После сокращения теста до 12 вопросов тот же множитель давал
+    // потолок 48/100: профиль не мог показать уверенный результат, даже
+    // если пользователь выбирал один и тот же тип ответа всегда.
+    const total = indices.length || 1
+    const pct = k => Math.round((c[k] / total) * 100)
     const PROFS = {
       IR: [
         { name:'Data Scientist',        emoji:'📊', score:92, category:'IT',      reason:'Аналитический склад ума и любовь к данным' },
@@ -178,7 +185,7 @@ export default function Quiz() {
     }
     return {
       professions: PROFS[top],
-      riasec: { R: c.IR*4, I: c.IR*4, A: c.A*4, S: c.S*4, E: c.EC*4, C: c.EC*4 },
+      riasec: { R: pct('IR'), I: pct('IR'), A: pct('A'), S: pct('S'), E: pct('EC'), C: pct('EC') },
       ai_analysis: {
         personality_type: typeNames[top],
         summary: language==='tj'
