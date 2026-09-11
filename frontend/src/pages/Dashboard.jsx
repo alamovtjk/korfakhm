@@ -124,7 +124,7 @@ export default function Dashboard() {
             <div className={`font-semibold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>
               {results ? t.dash_retake : t.dash_take}
             </div>
-            <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>65 вопросов · 35–45 мин</p>
+            <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>12 вопросов · 10–15 мин</p>
           </button>
           <button
             onClick={() => navigate(`/plan/${encodeURIComponent(professions[0].name)}`)}
