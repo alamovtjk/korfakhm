@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
-import { Brain, Target, TrendingUp, MapPin, ArrowRight, Sparkles, Briefcase, Building2, Play } from 'lucide-react'
+import { Brain, Target, TrendingUp, MapPin, ArrowRight, Sparkles, Briefcase, Building2, Play, Users, Languages } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -25,7 +25,7 @@ function Typewriter({ lang }) {
     else { setDel(false); setIdx(i => (i + 1) % phrases.length) }
     return () => clearTimeout(t)
   }, [text, del, idx, phrases])
-  return <span className="grad">{text}<span style={{ WebkitTextFillColor: '#a78bfa', color: '#a78bfa' }}>|</span></span>
+  return <span className="grad">{text}<span style={{ WebkitTextFillColor: '#7c3aed', color: '#7c3aed' }}>|</span></span>
 }
 
 /* ── Счётчик ───────────────────────────────────────────────── */
@@ -161,7 +161,7 @@ export default function Landing() {
                     { val: '5',   label: tj ? 'Касб' : 'Профессий' },
                     { val: '98%', label: tj ? 'Мувофиқ' : 'Совпадение' },
                   ].map(s => (
-                    <div key={s.label} style={{ borderRadius: 14, padding: '12px 8px', textAlign: 'center', background: 'rgba(124,58,237,.14)', border: '1px solid rgba(124,58,237,.28)' }}>
+                    <div key={s.label} style={{ borderRadius: 14, padding: '12px 8px', textAlign: 'center', background: 'var(--violet-wash)', border: '1px solid #e4d9fc' }}>
                       <div className="ub grad" style={{ fontSize: 20, fontWeight: 700 }}>{s.val}</div>
                       <div style={{ fontSize: 10, color: 'var(--text-faint)', marginTop: 3, fontWeight: 600 }}>{s.label}</div>
                     </div>
@@ -172,11 +172,11 @@ export default function Landing() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {[
-                    { name: 'Frontend-разработчик', match: '98%', color: '#a78bfa' },
-                    { name: 'UX/UI Дизайнер',       match: '92%', color: '#2dd4bf' },
-                    { name: 'Data Analyst',          match: '87%', color: '#f0abfc' },
+                    { name: 'Frontend-разработчик', match: '98%', color: '#7c3aed' },
+                    { name: 'UX/UI Дизайнер',       match: '92%', color: '#0d9488' },
+                    { name: 'Data Analyst',          match: '87%', color: '#9333ea' },
                   ].map(item => (
-                    <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.07)' }}>
+                    <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 12, background: 'var(--surface)', border: '1px solid var(--border)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ width: 7, height: 7, borderRadius: '50%', background: item.color, boxShadow: `0 0 10px ${item.color}` }} />
                         <span style={{ fontSize: 13, fontWeight: 600 }}>{item.name}</span>
@@ -224,6 +224,24 @@ export default function Landing() {
             </motion.div>
           ))}
         </div>
+      </section>
+
+      {/* ══ СТАТИСТИКА ══ */}
+      <section className="shell" style={{ paddingBottom: 100 }}>
+        <motion.div {...inView(0)} className="stat-band">
+          {[
+            { icon: Target,    cls: 's-violet', val: <CountUp to={50} suffix="+" />,    label: t.landing_stat_prof },
+            { icon: Users,     cls: 's-teal',   val: <CountUp to={10000} suffix="+" />, label: t.landing_stat_users },
+            { icon: Briefcase, cls: 's-blue',   val: <CountUp to={8} suffix="+" />,     label: tj ? 'Вакансияҳои фаъол' : 'Активных вакансий' },
+            { icon: Languages, cls: 's-fuchsia',val: '2',                               label: tj ? 'Забон: RU / TJ' : 'Языка: RU / TJ' },
+          ].map((s, i) => (
+            <div key={i} className={`stat-tile ${s.cls}`}>
+              <div className="ico"><s.icon size={19} /></div>
+              <div className="n">{s.val}</div>
+              <div className="l">{s.label}</div>
+            </div>
+          ))}
+        </motion.div>
       </section>
 
       {/* ══ ШАГИ ══ */}

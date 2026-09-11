@@ -1,16 +1,17 @@
 import { createContext, useContext, useEffect } from 'react'
 
-/* Тема всегда тёмная — как на alteno.dev. Контекст оставлен ради
-   страниц, которые всё ещё читают isDark. */
-const ThemeContext = createContext({ theme: 'dark', isDark: true, toggle: () => {} })
+/* Тема всегда светлая — чистый белый SaaS-дизайн. Контекст оставлен
+   ради страниц, которые всё ещё читают isDark: их internal
+   isDark ? darkClasses : lightClasses теперь всегда берёт светлую ветку. */
+const ThemeContext = createContext({ theme: 'light', isDark: false, toggle: () => {} })
 
 export function ThemeProvider({ children }) {
   useEffect(() => {
-    document.documentElement.classList.add('dark')
+    document.documentElement.classList.remove('dark')
     document.body.classList.remove('light-mode')
   }, [])
   return (
-    <ThemeContext.Provider value={{ theme: 'dark', isDark: true, toggle: () => {} }}>
+    <ThemeContext.Provider value={{ theme: 'light', isDark: false, toggle: () => {} }}>
       {children}
     </ThemeContext.Provider>
   )
