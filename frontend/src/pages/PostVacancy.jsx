@@ -5,18 +5,18 @@ import Navbar from '../components/Navbar'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLang } from '../contexts/LangContext'
 import { useAuth } from '../contexts/AuthContext'
-import { requestService, vacancyService } from '../services/vacancyService'
+import { vacancyService } from '../services/vacancyService'
+
+const EMPTY = { company: '', position: '', salary: '', city: '', type: 'Офис', category: 'IT', description: '', contact: '' }
 
 export default function PostVacancy() {
   const navigate = useNavigate()
   const { isDark } = useTheme()
   const { t } = useLang()
   const { user } = useAuth()
-  const [form, setForm] = useState({
-    company: '', position: '', salary: '', city: '', type: 'Офис',
-    category: 'IT', description: '', contact: user?.email || '',
-  })
+  const [form, setForm] = useState({ ...EMPTY, contact: user?.email || '' })
   const [errors, setErrors] = useState({})
+  const [submitError, setSubmitError] = useState('')
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
 
@@ -36,25 +36,17 @@ export default function PostVacancy() {
     e.preventDefault()
     if (!validate()) return
     setLoading(true)
-    await new Promise(r => setTimeout(r, 600))
+    setSubmitError('')
     try {
-      await fetch('/api/vacancies/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
+      // Любая заявка (гостя или зарегистрированного) уходит на модерацию —
+      // публикует только админ.
+      await vacancyService.submit(form)
+      setDone(true)
     } catch {
-      // Fallback to localStorage
+      setSubmitError(t.pv_error)
+    } finally {
+      setLoading(false)
     }
-    const formWithOwner = { ...form, ownerEmail: user?.email || form.contact }
-    if (user) {
-      // logged-in users get their vacancy published directly
-      vacancyService.add(formWithOwner)
-    } else {
-      requestService.add(formWithOwner)
-    }
-    setLoading(false)
-    setDone(true)
   }
 
   const inputCls = (field) => `w-full px-4 py-3 rounded-xl border text-sm outline-none transition-colors ${
@@ -227,6 +219,8 @@ export default function PostVacancy() {
               />
               {errors.contact && <p className="text-red-500 text-xs mt-1">{errors.contact}</p>}
             </div>
+
+            {submitError && <p className="text-red-500 text-sm text-center -mt-1">{submitError}</p>}
 
             {/* Submit */}
             <button

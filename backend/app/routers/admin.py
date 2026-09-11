@@ -1,134 +1,133 @@
+"""
+Админ-панель: модерация вакансий. Раньше "токеном" был сам пароль
+(отправлялся на каждый запрос как Bearer), а вакансии хранились в JSON-файле
+рядом с кодом — на Vercel он не переживает следующий вызов функции.
+Теперь логин выдаёт короткоживущий JWT, а данные — в общей таблице БД.
+"""
 import os
-from fastapi import APIRouter, HTTPException, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel
+from datetime import datetime, timedelta, timezone
 from typing import Optional
-import json
-from pathlib import Path
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jose import jwt, JWTError
+from pydantic import BaseModel
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import get_db
+from app.models import Vacancy
 
 router = APIRouter()
 security = HTTPBearer(auto_error=False)
 
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
-DATA_FILE = Path(__file__).parent.parent / "data" / "vacancies.json"
-REQUESTS_FILE = Path(__file__).parent.parent / "data" / "requests.json"
-
-SEED = [
-    {"id": 1, "company": "Alif Tech", "position": "Junior Frontend Developer", "category": "IT", "salary": "3 000–5 000", "city": "Душанбе", "type": "Офис", "description": "Разработка веб-приложений на React.js", "contact": "hr@alif.tj", "status": "published"},
-    {"id": 2, "company": "IdeaSoft", "position": "React Developer", "category": "IT", "salary": "4 000–7 000", "city": "Душанбе", "type": "Гибрид", "description": "Фронтенд-разработка", "contact": "jobs@ideasoft.tj", "status": "published"},
-    {"id": 3, "company": "Прогресс Банк", "position": "Web Developer", "category": "IT", "salary": "3 500–6 000", "city": "Душанбе", "type": "Офис", "description": "Поддержка веб-сервисов", "contact": "hr@progress.tj", "status": "published"},
-]
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'admin123')
+SECRET_KEY = os.getenv('SECRET_KEY', 'tajcareer-super-secret-2025-ilm-furugi')
+ALGORITHM = 'HS256'
+ADMIN_TOKEN_HOURS = 12
 
 
-def _load(path: Path, default) -> list:
-    if path.exists():
-        return json.loads(path.read_text(encoding="utf-8"))
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(default, ensure_ascii=False), encoding="utf-8")
-    return default
+def make_admin_token() -> str:
+    payload = {'role': 'admin', 'exp': datetime.now(timezone.utc) + timedelta(hours=ADMIN_TOKEN_HOURS)}
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def _save(path: Path, data: list):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-
-
-def _next_id(items):
-    return max((i["id"] for i in items), default=0) + 1
-
-
-def require_admin(creds: HTTPAuthorizationCredentials = Depends(security)):
-    if not creds or creds.credentials != ADMIN_PASSWORD:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+def require_admin(creds: HTTPAuthorizationCredentials = Depends(security)) -> bool:
+    if not creds:
+        raise HTTPException(status_code=401, detail='Unauthorized')
+    try:
+        payload = jwt.decode(creds.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+    except JWTError:
+        raise HTTPException(status_code=401, detail='Unauthorized')
+    if payload.get('role') != 'admin':
+        raise HTTPException(status_code=401, detail='Unauthorized')
     return True
+
+
+def _serialize(v: Vacancy) -> dict:
+    return {
+        'id': v.id, 'company': v.company, 'position': v.position, 'category': v.category,
+        'salary': v.salary, 'city': v.city, 'type': v.type, 'description': v.description,
+        'contact': v.contact, 'ownerEmail': v.owner_email, 'status': v.status,
+        'createdAt': v.created_at.isoformat() if v.created_at else None,
+    }
 
 
 # ── Auth ──────────────────────────────────────────────────────────────────────
 class LoginBody(BaseModel):
     password: str
 
-@router.post("/login")
+
+@router.post('/login')
 async def login(body: LoginBody):
-    if body.password == ADMIN_PASSWORD:
-        return {"ok": True, "token": ADMIN_PASSWORD}
-    raise HTTPException(status_code=401, detail="Wrong password")
+    if body.password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail='Wrong password')
+    return {'ok': True, 'token': make_admin_token()}
 
 
 # ── Vacancies CRUD ────────────────────────────────────────────────────────────
 class VacancyBody(BaseModel):
     company: str
     position: str
-    category: str = "IT"
-    salary: str = ""
-    city: str = "Душанбе"
-    type: str = "Офис"
-    description: str = ""
-    contact: str = ""
-    status: str = "published"
+    category: str = 'IT'
+    salary: str = ''
+    city: str = 'Душанбе'
+    type: str = 'Офис'
+    description: str = ''
+    contact: str = ''
+    status: str = 'published'
 
 
-@router.get("/vacancies")
-async def get_vacancies(_=Depends(require_admin)):
-    return _load(DATA_FILE, SEED)
+async def _get_or_404(vid: int, db: AsyncSession) -> Vacancy:
+    v = (await db.execute(select(Vacancy).where(Vacancy.id == vid))).scalar_one_or_none()
+    if not v:
+        raise HTTPException(status_code=404, detail='Not found')
+    return v
 
 
-@router.post("/vacancies")
-async def add_vacancy(body: VacancyBody, _=Depends(require_admin)):
-    items = _load(DATA_FILE, SEED)
-    item = body.model_dump()
-    item["id"] = _next_id(items)
-    items.append(item)
-    _save(DATA_FILE, items)
-    return item
+@router.get('/vacancies')
+async def get_vacancies(status: Optional[str] = Query(None), _=Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    stmt = select(Vacancy).order_by(Vacancy.created_at.desc())
+    if status:
+        stmt = stmt.where(Vacancy.status == status)
+    return [_serialize(v) for v in (await db.execute(stmt)).scalars().all()]
 
 
-@router.put("/vacancies/{vid}")
-async def update_vacancy(vid: int, body: VacancyBody, _=Depends(require_admin)):
-    items = _load(DATA_FILE, SEED)
-    for i, v in enumerate(items):
-        if v["id"] == vid:
-            items[i] = {**body.model_dump(), "id": vid}
-            _save(DATA_FILE, items)
-            return items[i]
-    raise HTTPException(status_code=404, detail="Not found")
+@router.post('/vacancies')
+async def add_vacancy(body: VacancyBody, _=Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    v = Vacancy(**body.model_dump())
+    db.add(v)
+    await db.flush()
+    return _serialize(v)
 
 
-@router.delete("/vacancies/{vid}")
-async def delete_vacancy(vid: int, _=Depends(require_admin)):
-    items = [v for v in _load(DATA_FILE, SEED) if v["id"] != vid]
-    _save(DATA_FILE, items)
-    return {"ok": True}
+@router.put('/vacancies/{vid}')
+async def update_vacancy(vid: int, body: VacancyBody, _=Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    v = await _get_or_404(vid, db)
+    for k, val in body.model_dump().items():
+        setattr(v, k, val)
+    await db.flush()
+    return _serialize(v)
 
 
-# ── Requests ──────────────────────────────────────────────────────────────────
-@router.get("/requests")
-async def get_requests(_=Depends(require_admin)):
-    return _load(REQUESTS_FILE, [])
+@router.delete('/vacancies/{vid}')
+async def delete_vacancy(vid: int, _=Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    v = await _get_or_404(vid, db)
+    await db.delete(v)
+    return {'ok': True}
 
 
-@router.put("/requests/{rid}/approve")
-async def approve_request(rid: int, _=Depends(require_admin)):
-    reqs = _load(REQUESTS_FILE, [])
-    vacs = _load(DATA_FILE, SEED)
-    for r in reqs:
-        if r["id"] == rid:
-            r["status"] = "approved"
-            vac = {k: r.get(k, "") for k in ["company", "position", "category", "salary", "city", "type", "description", "contact"]}
-            vac["id"] = _next_id(vacs)
-            vac["status"] = "published"
-            vacs.append(vac)
-            _save(DATA_FILE, vacs)
-            break
-    _save(REQUESTS_FILE, reqs)
-    return {"ok": True}
+@router.put('/vacancies/{vid}/approve')
+async def approve_vacancy(vid: int, _=Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    v = await _get_or_404(vid, db)
+    v.status = 'published'
+    await db.flush()
+    return _serialize(v)
 
 
-@router.put("/requests/{rid}/reject")
-async def reject_request(rid: int, _=Depends(require_admin)):
-    reqs = _load(REQUESTS_FILE, [])
-    for r in reqs:
-        if r["id"] == rid:
-            r["status"] = "rejected"
-            break
-    _save(REQUESTS_FILE, reqs)
-    return {"ok": True}
+@router.put('/vacancies/{vid}/reject')
+async def reject_vacancy(vid: int, _=Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    v = await _get_or_404(vid, db)
+    v.status = 'rejected'
+    await db.flush()
+    return _serialize(v)

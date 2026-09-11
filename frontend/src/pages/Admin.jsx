@@ -6,7 +6,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLang } from '../contexts/LangContext'
-import { vacancyService, requestService, adminAuth } from '../services/vacancyService'
+import { adminAuth, adminVacancyService } from '../services/adminService'
 
 const EMPTY_FORM = { company: '', position: '', category: 'IT', salary: '', city: 'Душанбе', type: 'Офис', description: '', contact: '' }
 
@@ -20,13 +20,17 @@ function LoginScreen({ isDark, t, onLogin }) {
   const [err, setErr] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  function submit(e) {
+  async function submit(e) {
     e.preventDefault()
     setLoading(true)
-    setTimeout(() => {
-      if (adminAuth.login(pw)) onLogin()
-      else { setErr(true); setLoading(false) }
-    }, 400)
+    try {
+      await adminAuth.login(pw)
+      onLogin()
+    } catch {
+      setErr(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -63,9 +67,6 @@ function LoginScreen({ isDark, t, onLogin }) {
             {loading ? '...' : t.adm_login_btn}
           </button>
         </form>
-        <p className={`text-xs text-center mt-4 ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
-          Пароль по умолчанию: <span className="font-mono font-bold">admin123</span>
-        </p>
       </div>
     </div>
   )
@@ -180,50 +181,51 @@ export default function Admin() {
   const [authed, setAuthed] = useState(adminAuth.isLoggedIn())
   const [tab, setTab] = useState('vacancies')
   const [vacancies, setVacancies] = useState([])
-  const [requests, setRequests] = useState([])
   const [modal, setModal] = useState(null) // null | { type: 'add' } | { type: 'edit', item }
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [toast, setToast] = useState(null)
 
   const refresh = useCallback(() => {
-    setVacancies(vacancyService.getAll())
-    setRequests(requestService.getAll())
+    adminVacancyService.getAll().then(setVacancies).catch(() => setVacancies([]))
   }, [])
 
   useEffect(() => { if (authed) refresh() }, [authed, refresh])
+
+  // "Заявки" — те же вакансии, просто со статусом не "published"
+  const requests = vacancies.filter(v => v.status !== 'published')
 
   function showToast(msg, type = 'success') {
     setToast({ msg, type })
     setTimeout(() => setToast(null), 2500)
   }
 
-  function handleSave(form) {
+  async function handleSave(form) {
     if (modal.type === 'add') {
-      vacancyService.add(form)
+      await adminVacancyService.add(form)
       showToast('Вакансия добавлена')
     } else {
-      vacancyService.update(modal.item.id, form)
+      await adminVacancyService.update(modal.item.id, form)
       showToast('Вакансия обновлена')
     }
     setModal(null)
     refresh()
   }
 
-  function handleDelete(id) {
-    vacancyService.delete(id)
+  async function handleDelete(id) {
+    await adminVacancyService.delete(id)
     setDeleteConfirm(null)
     refresh()
     showToast('Удалено', 'error')
   }
 
-  function handleApprove(id) {
-    requestService.approve(id)
+  async function handleApprove(id) {
+    await adminVacancyService.approve(id)
     refresh()
     showToast('Вакансия опубликована')
   }
 
-  function handleReject(id) {
-    requestService.reject(id)
+  async function handleReject(id) {
+    await adminVacancyService.reject(id)
     refresh()
     showToast('Заявка отклонена', 'error')
   }

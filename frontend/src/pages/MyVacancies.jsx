@@ -100,26 +100,42 @@ export default function MyVacancies() {
   const [editing,   setEditing]   = useState(null)
   const [deleting,  setDeleting]  = useState(null)
 
+  const [loading, setLoading] = useState(true)
+
   useEffect(() => {
     if (!user) { navigate('/auth', { state: { from: '/my-vacancies' } }); return }
     reload()
   }, [user]) // eslint-disable-line
 
   function reload() {
-    const all = vacancyService.getPublished()
-    setVacancies(all.filter(v => v.ownerEmail?.toLowerCase() === user?.email?.toLowerCase()))
+    setLoading(true)
+    vacancyService.getMine()
+      .then(setVacancies)
+      .catch(() => setVacancies([]))
+      .finally(() => setLoading(false))
   }
 
-  function handleSave(updated) {
-    vacancyService.update(updated.id, updated)
+  async function handleSave(updated) {
+    await vacancyService.updateMine(updated.id, updated)
     setEditing(null)
     reload()
   }
 
-  function handleDelete(id) {
-    vacancyService.delete(id)
+  async function handleDelete(id) {
+    await vacancyService.deleteMine(id)
     setDeleting(null)
     reload()
+  }
+
+  const STATUS_LABEL = {
+    published: lang === 'tj' ? 'Нашршуда' : 'Опубликовано',
+    pending:   lang === 'tj' ? 'Дар баррасӣ' : 'На модерации',
+    rejected:  lang === 'tj' ? 'Рад шуда' : 'Отклонено',
+  }
+  const STATUS_CLS = {
+    published: isDark ? 'bg-emerald-900/30 text-emerald-400' : 'bg-emerald-50 text-emerald-600',
+    pending:   isDark ? 'bg-amber-900/30 text-amber-400'     : 'bg-amber-50 text-amber-600',
+    rejected:  isDark ? 'bg-red-900/30 text-red-400'         : 'bg-red-50 text-red-600',
   }
 
   const T = lang === 'tj'
@@ -155,7 +171,11 @@ export default function MyVacancies() {
         </div>
 
         {/* List */}
-        {vacancies.length === 0 ? (
+        {loading ? (
+          <div className={`rounded-2xl border py-16 text-center ${isDark ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'}`}>
+            <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{lang === 'tj' ? 'Боркунӣ...' : 'Загрузка...'}</p>
+          </div>
+        ) : vacancies.length === 0 ? (
           <div className={`rounded-2xl border py-16 text-center ${isDark ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'}`}>
             <Briefcase size={40} className={`mx-auto mb-3 ${isDark ? 'text-slate-700' : 'text-slate-300'}`} />
             <p className={`font-semibold mb-4 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{T.empty}</p>
@@ -196,9 +216,9 @@ export default function MyVacancies() {
                         <span className={`text-xs font-semibold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
                           {v.salary} {lang === 'tj' ? 'сом.' : 'сом.'}
                         </span>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
-                          isDark ? 'bg-emerald-900/30 text-emerald-400' : 'bg-emerald-50 text-emerald-600'
-                        }`}>{T.posted}</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${STATUS_CLS[v.status] || STATUS_CLS.pending}`}>
+                          {STATUS_LABEL[v.status] || v.status}
+                        </span>
                       </div>
                     </div>
                   </div>

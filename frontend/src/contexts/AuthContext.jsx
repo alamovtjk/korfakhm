@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 
 const AuthContext = createContext(null)
 
@@ -30,14 +30,17 @@ function lsLogin(email, password) {
 }
 
 // ── API helpers ───────────────────────────────────────────────────────────
-async function apiPost(path, body, token) {
+async function apiPost(path, body, token, method = 'POST') {
   const headers = { 'Content-Type': 'application/json' }
   if (token) headers['Authorization'] = `Bearer ${token}`
   const res = await fetch(API + path, {
-    method: 'POST',
+    method,
     headers,
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(4000),
+    body: method === 'GET' ? undefined : JSON.stringify(body),
+    // Холодный старт бэкенда на Vercel (SQLAlchemy + первое подключение к
+    // БД) иногда дольше 4с — при таймауте это молча откатывало вход в
+    // localStorage-режим без единого сообщения об ошибке.
+    signal: AbortSignal.timeout(10000),
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data.detail || 'api_error')
@@ -53,6 +56,27 @@ export function AuthProvider({ children }) {
 
   // token is stored separately (null when using localStorage fallback)
   const getToken = () => localStorage.getItem('tc_token')
+
+  // Результаты теста живут на этом устройстве в localStorage (Dashboard,
+  // Results, IQResults читают их напрямую) — так что на новом устройстве
+  // после входа кабинет выглядел пустым, хотя результат уже сохранён на
+  // сервере. Подтягиваем его один раз при входе/загрузке с токеном и
+  // складываем в те же ключи, что страницы уже умеют читать.
+  useEffect(() => {
+    const token = getToken()
+    if (!user || !token) return
+    apiPost('/me', undefined, token, 'GET')
+      .then(data => {
+        if (data.results?.quiz && !localStorage.getItem('quiz_results')) {
+          localStorage.setItem('quiz_results', JSON.stringify(data.results.quiz))
+        }
+        if (data.results?.iq && !localStorage.getItem('iq_results')) {
+          localStorage.setItem('iq_results', JSON.stringify(data.results.iq))
+        }
+      })
+      .catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id])
 
   async function register(name, email, password) {
     try {

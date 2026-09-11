@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Briefcase, Building2, MapPin, Search, X, ChevronRight, SlidersHorizontal } from 'lucide-react'
 import Navbar from '../components/Navbar'
@@ -88,7 +88,17 @@ export default function Vacancies() {
   const { isDark } = useTheme()
   const { lang } = useLang()
 
-  const allVacancies = useMemo(() => vacancyService.getPublished(), [])
+  const [allVacancies, setAllVacancies] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let alive = true
+    vacancyService.getPublished()
+      .then(list => { if (alive) setAllVacancies(list) })
+      .catch(() => {})
+      .finally(() => { if (alive) setLoading(false) })
+    return () => { alive = false }
+  }, [])
 
   const categories = ['all', ...Array.from(new Set(allVacancies.map(v => v.category)))]
   const cities     = ['all', ...Array.from(new Set(allVacancies.map(v => v.city)))]
@@ -257,7 +267,13 @@ export default function Vacancies() {
         </p>
 
         {/* Grid */}
-        {filtered.length > 0 ? (
+        {loading ? (
+          <div className={`rounded-2xl border py-16 text-center ${isDark ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200'}`}>
+            <p className={`text-sm ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+              {lang === 'tj' ? 'Боркунӣ...' : 'Загрузка...'}
+            </p>
+          </div>
+        ) : filtered.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map(v => (
               <VacancyCard key={v.id} v={v} isDark={isDark} lang={lang} />

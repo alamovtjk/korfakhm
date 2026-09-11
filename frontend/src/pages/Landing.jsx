@@ -78,7 +78,10 @@ export default function Landing() {
   const { t, lang } = useLang()
   const tj = lang === 'tj'
 
-  const vacancies = vacancyService.getPublished().slice(0, 3)
+  const [vacancies, setVacancies] = useState([])
+  useEffect(() => {
+    vacancyService.getPublished({ limit: 3 }).then(setVacancies).catch(() => {})
+  }, [])
 
   const features = [
     { icon: Brain,      cls: 's-violet',  title: t.landing_f1_title, desc: t.landing_f1_desc },

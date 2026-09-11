@@ -46,6 +46,28 @@ async def current_user_id(authorization: str = Header(default=None)) -> int:
     return int(payload['sub'])
 
 
+async def optional_user(authorization: str = Header(default=None)) -> dict | None:
+    """Decodes the bearer token if present and valid, otherwise returns None
+    instead of raising — for endpoints usable both signed-in and anonymous
+    (e.g. submitting a vacancy)."""
+    if not authorization or not authorization.startswith('Bearer '):
+        return None
+    try:
+        payload = parse_token(authorization[7:])
+    except HTTPException:
+        return None
+    return {'id': int(payload['sub']), 'name': payload.get('name'), 'email': payload.get('email')}
+
+
+async def require_user(authorization: str = Header(default=None)) -> dict:
+    """Like current_user_id, but returns the full {id, name, email} straight
+    from the token — no DB round-trip needed for ownership checks."""
+    user = await optional_user(authorization)
+    if not user:
+        raise HTTPException(status_code=401, detail='not_authenticated')
+    return user
+
+
 # ── schemas ───────────────────────────────────────────────────────────────────
 
 class RegisterIn(BaseModel):
