@@ -30,7 +30,7 @@ function LoginScreen({ isDark, t, onLogin }) {
   }
 
   return (
-    <div className={`min-h-screen flex items-center justify-center px-4 ${isDark ? 'bg-[#0a0e1a]' : 'bg-[#f0f4ff]'}`}>
+    <div className={`min-h-screen flex items-center justify-center px-4 page`}>
       <div className={`w-full max-w-sm rounded-2xl border p-8 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-lg'}`}>
         <div className="flex justify-center mb-6">
           <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">
@@ -243,7 +243,7 @@ export default function Admin() {
   const td = `px-4 py-3.5 text-sm ${isDark ? 'text-slate-300' : 'text-slate-700'}`
 
   return (
-    <div className={`min-h-screen transition-colors ${isDark ? 'bg-[#0a0e1a]' : 'bg-[#f0f4ff]'}`}>
+    <div className={`min-h-screen transition-colors page`}>
       {/* Toast */}
       {toast && (
         <div className={`fixed top-5 right-5 z-[100] px-4 py-2.5 rounded-xl shadow-lg text-white text-sm font-medium flex items-center gap-2 ${

@@ -71,7 +71,7 @@ export default function CareerPlan() {
 
   if (loading) {
     return (
-      <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-[#0a0e1a]' : 'bg-[#f0f4ff]'}`}>
+      <div className={`min-h-screen flex flex-col transition-colors page`}>
         <Navbar />
         <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4">
           <div className="relative">
@@ -98,7 +98,7 @@ export default function CareerPlan() {
   const pct = Math.round((doneTasks / totalTasks) * 100)
 
   return (
-    <div className={`min-h-screen transition-colors ${isDark ? 'bg-[#0a0e1a]' : 'bg-[#f0f4ff]'}`}>
+    <div className={`min-h-screen transition-colors page`}>
       <Navbar />
 
       {/* Sticky progress bar */}

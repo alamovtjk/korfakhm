@@ -15,6 +15,7 @@ import Vacancies from './pages/Vacancies'
 import Auth from './pages/Auth'
 import MyVacancies from './pages/MyVacancies'
 import ChatWidget from './components/ChatWidget'
+import SpaceBg from './components/SpaceBg'
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
       <LangProvider>
         <AuthProvider>
         <BrowserRouter>
+          <SpaceBg />
           <ChatWidget />
           <Routes>
             <Route path="/" element={<Landing />} />

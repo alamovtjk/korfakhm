@@ -69,7 +69,7 @@ export default function PostVacancy() {
 
   if (done) {
     return (
-      <div className={`min-h-screen transition-colors ${isDark ? 'bg-[#0a0e1a]' : 'bg-[#f0f4ff]'}`}>
+      <div className={`min-h-screen transition-colors page`}>
         <Navbar />
         <div className="flex items-center justify-center px-4 py-24">
           <div className={`text-center max-w-md rounded-3xl border p-10 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-lg'}`}>
@@ -99,7 +99,7 @@ export default function PostVacancy() {
   }
 
   return (
-    <div className={`min-h-screen transition-colors ${isDark ? 'bg-[#0a0e1a]' : 'bg-[#f0f4ff]'}`}>
+    <div className={`min-h-screen transition-colors page`}>
       <Navbar />
 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">

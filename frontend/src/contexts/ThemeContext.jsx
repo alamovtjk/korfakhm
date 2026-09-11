@@ -1,29 +1,16 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect } from 'react'
 
-const ThemeContext = createContext(null)
+/* Тема всегда тёмная — как на alteno.dev. Контекст оставлен ради
+   страниц, которые всё ещё читают isDark. */
+const ThemeContext = createContext({ theme: 'dark', isDark: true, toggle: () => {} })
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
-
   useEffect(() => {
-    const root = document.documentElement
-    const body = document.body
-    if (theme === 'dark') {
-      root.classList.add('dark')
-      body.classList.remove('light-mode')
-    } else {
-      root.classList.remove('dark')
-      body.classList.add('light-mode')
-    }
-    localStorage.setItem('theme', theme)
-  }, [theme])
-
-  function toggle() {
-    setTheme(t => t === 'dark' ? 'light' : 'dark')
-  }
-
+    document.documentElement.classList.add('dark')
+    document.body.classList.remove('light-mode')
+  }, [])
   return (
-    <ThemeContext.Provider value={{ theme, toggle, isDark: theme === 'dark' }}>
+    <ThemeContext.Provider value={{ theme: 'dark', isDark: true, toggle: () => {} }}>
       {children}
     </ThemeContext.Provider>
   )

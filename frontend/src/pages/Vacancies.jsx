@@ -60,7 +60,7 @@ function VacancyCard({ v, isDark, lang }) {
       </p>
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-1 border-t ${isDark ? 'border-slate-800' : 'border-slate-100'}">
+      <div className="flex items-center justify-between pt-1 border-t border-slate-800">
         <div className="flex items-center gap-1">
           <MapPin size={11} className={isDark ? 'text-slate-600' : 'text-slate-400'} />
           <span className={`text-[11px] ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{v.city}</span>
@@ -116,7 +116,7 @@ export default function Vacancies() {
   const labelAll = lang === 'tj' ? 'Ҳама' : 'Все'
 
   return (
-    <div className={`min-h-screen transition-colors ${isDark ? 'bg-[#0a0e1a]' : 'bg-[#f0f4ff]'}`}>
+    <div className={`min-h-screen transition-colors page`}>
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">

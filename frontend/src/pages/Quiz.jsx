@@ -309,7 +309,7 @@ export default function Quiz() {
   const isTj     = lang === 'tj'
 
   return (
-    <div className={`min-h-screen flex flex-col ${isDark ? 'bg-[#0a0e1a]' : 'bg-[#f0f4ff]'}`}>
+    <div className={`min-h-screen flex flex-col page`}>
       <Navbar />
 
       {/* ── Progress bar ── */}

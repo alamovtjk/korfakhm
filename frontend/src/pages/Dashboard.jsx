@@ -27,7 +27,7 @@ export default function Dashboard() {
   ]
 
   return (
-    <div className={`min-h-screen transition-colors ${isDark ? 'bg-[#0a0e1a]' : 'bg-[#f0f4ff]'}`}>
+    <div className={`min-h-screen transition-colors page`}>
       <Navbar />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">

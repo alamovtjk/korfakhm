@@ -184,7 +184,7 @@ function IntroScreen({ onStart, lang, isDark }) {
   ]
 
   return (
-    <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-[#0a0e1a]' : 'bg-[#f0f4ff]'}`}>
+    <div className={`min-h-screen flex flex-col transition-colors page`}>
       <Navbar />
       <div className="flex-1 flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-md">
@@ -291,7 +291,7 @@ function GlitchScreen({ lang, onDone }) {
   }, [onDone])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0e1a] px-4 overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center page px-4 overflow-hidden">
       <style>{`
         @keyframes glitch-shift {
           0%,100%{transform:translate(0) skewX(0deg)}
@@ -449,7 +449,7 @@ export default function IQTest() {
   const answeredCount = Object.keys(answers).length
 
   return (
-    <div className={`min-h-screen flex flex-col transition-colors ${isDark ? 'bg-[#0a0e1a]' : 'bg-[#f0f4ff]'}`}>
+    <div className={`min-h-screen flex flex-col transition-colors page`}>
       <Navbar />
 
       {/* Progress bar */}

@@ -91,14 +91,8 @@ export default function Auth() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: bg, display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center', padding: '24px', transition: 'background .3s' }}>
-
-      {/* Glow blobs */}
-      <div style={{ position:'fixed', top:-80, left:'20%', width:500, height:500, borderRadius:'50%', pointerEvents:'none', zIndex:0,
-        background: isDark ? 'radial-gradient(ellipse,rgba(124,58,237,0.28) 0%,transparent 70%)' : 'radial-gradient(ellipse,rgba(124,58,237,0.14) 0%,transparent 70%)' }} />
-      <div style={{ position:'fixed', bottom:-60, right:'15%', width:400, height:400, borderRadius:'50%', pointerEvents:'none', zIndex:0,
-        background: isDark ? 'radial-gradient(ellipse,rgba(13,148,136,0.2) 0%,transparent 70%)' : 'radial-gradient(ellipse,rgba(13,148,136,0.12) 0%,transparent 70%)' }} />
+    <div className="page" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
 
       {/* Logo */}
       <button onClick={() => navigate('/')} style={{
