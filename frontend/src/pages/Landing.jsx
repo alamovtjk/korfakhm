@@ -110,12 +110,9 @@ export default function Landing() {
       <section className="shell">
         <div className="hero-section">
           <div className="hero-copy">
-            <motion.div {...fu(0)}>
-              <span className="badge">
-                <span className="dot" />
-                {tj ? 'Платформаи №1 барои касб дар Тоҷикистон' : 'Платформа №1 для карьеры в Таджикистане'}
-              </span>
-            </motion.div>
+            <motion.p {...fu(0)} className="hero-eyebrow-italic">
+              {tj ? 'Ҳар роҳ аз як қадам оғоз мешавад' : 'Каждый путь начинается с одного шага'}
+            </motion.p>
 
             <motion.h1 {...fu(0.08)}>
               {tj ? 'Кореро пайдо кун,' : 'Найди работу,'}
@@ -144,8 +141,10 @@ export default function Landing() {
             </motion.div>
           </div>
 
-          {/* Плавающая карточка результата */}
-          <motion.div {...fu(0.18)} className="hero-visual">
+          {/* Плавающая карточка результата над большим цветным пятном */}
+          <div className="hero-glow-stage">
+            <div className="hero-glow" />
+            <motion.div {...fu(0.32)} className="hero-visual-center">
             <div className="fcard">
               <div className="pbar">
                 <span className="d" /><span className="d" /><span className="d" />
@@ -190,7 +189,8 @@ export default function Landing() {
                 </button>
               </div>
             </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
       </section>
 

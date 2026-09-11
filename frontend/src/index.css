@@ -92,7 +92,6 @@
   --lg-border: #e7e9f2;
   --lg-spec: none;
   --lg-shadow: 0 1px 2px rgba(23,26,43,.04), 0 14px 32px rgba(23,26,43,.07);
-  --grid-line: rgba(18,19,43,.05);
   --r: 22px;
 }
 
@@ -129,7 +128,6 @@
   --lg-border: rgba(255,255,255,.10);
   --lg-spec: none;
   --lg-shadow: 0 1px 2px rgba(0,0,0,.3), 0 14px 32px rgba(0,0,0,.35);
-  --grid-line: rgba(255,255,255,.055);
 }
 :root.dark .badge,
 :root.dark .eyebrow, :root.dark .section-label { border-color: rgba(124,58,237,.35); }
@@ -182,24 +180,13 @@ h4, h5 { font-family: 'Manrope', sans-serif; }
 }
 
 /* ═══════════════════════════════════
-   ФОН: цветной SaaS-glow + едва заметная сетка. Три пятна вместо двух
-   (добавлена фуксия для баланса с фиолетовым/бирюзовым), сетка даёт
-   странице фактуру даже там, где пятен не видно, лёгкий дрейф — по
-   transform, дёшево для GPU, композитится без перерисовки.
+   ФОН: цветной SaaS-glow. Три пятна (фиолет/бирюза/фуксия), лёгкий
+   дрейф — по transform, дёшево для GPU, композитится без перерисовки.
    ═══════════════════════════════════ */
 .bg-stage {
   position: fixed; inset: 0; z-index: 0;
   overflow: hidden; background: var(--bg);
   pointer-events: none;
-}
-.bg-grid {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 56px 56px;
-  -webkit-mask-image: radial-gradient(ellipse 75% 55% at 50% 0%, #000 35%, transparent 92%);
-  mask-image: radial-gradient(ellipse 75% 55% at 50% 0%, #000 35%, transparent 92%);
 }
 .blob { position: absolute; border-radius: 50%; filter: blur(90px); pointer-events: none; will-change: transform; }
 .blob.v { width: 640px; height: 640px; opacity: .28; background: radial-gradient(circle at 40% 40%, #a78bfa, transparent 70%); top: -260px; left: -160px; animation: driftA 70s ease-in-out infinite alternate; }
@@ -488,24 +475,54 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline: non
    ЛЕНДИНГ
    ═══════════════════════════════════ */
 .hero-section {
-  min-height: calc(100vh - 78px); display: grid;
-  grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
-  padding: 70px 0 80px;
+  padding: 64px 0 0;
+}
+.hero-copy {
+  max-width: 720px; margin: 0 auto; text-align: center;
+  display: flex; flex-direction: column; align-items: center;
+}
+.hero-eyebrow-italic {
+  font-family: 'Noto Serif Brand', 'Unbounded', serif;
+  font-style: italic; font-weight: 400; font-size: clamp(15px, 1.4vw, 18px);
+  color: var(--text-dim); margin: 0 0 18px; letter-spacing: .01em;
 }
 .hero-copy h1 {
   font-family: 'Unbounded', sans-serif; font-weight: 700;
-  font-size: clamp(30px, 4vw, 56px); line-height: 1.08; letter-spacing: -.03em;
-  margin: 0 0 26px; min-height: 2.2em; color: var(--text);
+  font-size: clamp(32px, 5vw, 60px); line-height: 1.1; letter-spacing: -.03em;
+  margin: 0 0 22px; color: var(--text);
 }
-.hero-copy .badge { margin-bottom: 28px; }
-.sub { font-size: clamp(16px, 1.3vw, 19px); line-height: 1.6; color: var(--text-dim); max-width: 480px; margin: 0 0 36px; }
-.hero-cta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 48px; }
-.hero-stats { display: flex; gap: 40px; flex-wrap: wrap; }
+.hero-copy .badge { margin-bottom: 24px; }
+.sub { font-size: clamp(16px, 1.3vw, 19px); line-height: 1.6; color: var(--text-dim); max-width: 480px; margin: 0 auto 36px; }
+.hero-cta { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; margin-bottom: 44px; }
+.hero-stats { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin-bottom: 8px; }
 .hero-stats .num {
   font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -.02em;
   color: var(--text);
 }
 .hero-stats .lbl { font-size: 13px; color: var(--text-faint); margin-top: 4px; }
+
+/* Большое мягкое цветное пятно за карточкой — как разноцветный блик
+   за телефоном в референсе, только в фирменных цветах. Растянуто по
+   всей ширине секции, поэтому просто вложенный блюр-градиент, а не
+   .blob (тем не нужен дрейф — карточка и так "плывёт" сама). */
+.hero-glow-stage { position: relative; padding: 30px 0 70px; display: flex; justify-content: center; }
+.hero-glow {
+  position: absolute; z-index: 0; top: 50%; left: 50%;
+  width: min(1100px, 92vw); height: 560px;
+  transform: translate(-50%, -50%);
+  background:
+    radial-gradient(ellipse 46% 70% at 30% 45%, color-mix(in oklab, var(--violet) 75%, transparent), transparent 72%),
+    radial-gradient(ellipse 40% 62% at 68% 40%, color-mix(in oklab, var(--fuchsia) 65%, transparent), transparent 70%),
+    radial-gradient(ellipse 46% 68% at 50% 70%, color-mix(in oklab, var(--teal) 70%, transparent), transparent 72%);
+  filter: blur(70px);
+  opacity: .55;
+  pointer-events: none;
+}
+:root.dark .hero-glow { opacity: .7; }
+.hero-visual-center { position: relative; z-index: 1; width: 100%; max-width: 420px; }
+@media (max-width: 640px) {
+  .hero-glow { height: 420px; filter: blur(50px); }
+}
 
 /* Плавающая карточка результата — белая, как мокап в референсах */
 .fcard {
@@ -658,7 +675,6 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline: non
    АДАПТИВ
    ═══════════════════════════════════ */
 @media (max-width: 1080px) {
-  .hero-section { grid-template-columns: 1fr; gap: 40px; min-height: auto; padding: 60px 0 60px; }
   .svc-grid { grid-template-columns: repeat(2, 1fr); }
   .stat-band { grid-template-columns: repeat(2, 1fr); }
   .proc-grid { grid-template-columns: 1fr; gap: 40px; }
@@ -667,10 +683,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline: non
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 768px) {
-  .hero-section { padding: 40px 0 50px; text-align: center; }
-  .hero-copy .sub { margin-left: auto; margin-right: auto; }
-  .hero-cta, .hero-stats { justify-content: center; }
-  .hero-visual { max-width: 400px; margin: 0 auto; width: 100%; }
+  .hero-section { padding: 40px 0 0; }
   .banner-inner { padding: 40px 22px; }
   .banner { border-radius: 22px; }
   .totop { right: 26px; bottom: 210px; }
