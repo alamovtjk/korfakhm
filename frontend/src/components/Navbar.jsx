@@ -8,11 +8,11 @@ import { useAuth } from '../contexts/AuthContext'
 const LANGS  = ['ru', 'tj']
 const LABELS = { ru: 'РУ', tj: 'ТҶ' }
 
-/* Логотип: градиентный квадрат + «КОРФАҲМ» с переливом на второй части */
+/* Логотип: фирменный знак (export/korfahm-app-icon.png) + «КОРФАҲМ» с переливом на второй части */
 export function Brand({ onClick }) {
   return (
     <button className="brand" onClick={onClick} aria-label="КОРФАҲМ">
-      <span className="mark">КФ</span>
+      <img className="mark" src="/logo-mark.png" alt="" width="36" height="36" />
       <span>КОР<i>ФАҲМ</i></span>
     </button>
   )

@@ -99,16 +99,13 @@ export default function Auth() {
         display:'flex', alignItems:'center', gap:10, marginBottom:32,
         background:'none', border:'none', cursor:'pointer', position:'relative', zIndex:1,
       }}>
-        <div style={{
-          width:40, height:40, borderRadius:12,
-          background:'linear-gradient(135deg,#7c3aed,#0d9488)',
-          display:'flex', alignItems:'center', justifyContent:'center',
-          fontSize:12, fontWeight:900, color:'#fff',
+        <img src="/logo-mark.png" alt="" width={40} height={40} style={{
+          borderRadius:12, display:'block', objectFit:'contain',
           boxShadow:'0 6px 20px rgba(124,58,237,0.35)',
-        }}>КФ</div>
+        }} />
         <span style={{ fontWeight:900, fontSize:22, color:text, fontFamily:'Manrope, system-ui', letterSpacing:'-0.02em' }}>
           КОР
-          <span style={{ background:'linear-gradient(135deg,#a78bfa,#2dd4bf)',
+          <span style={{ background:'linear-gradient(135deg,#7c3aed,#0d9488)',
             WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent' }}>ФАҲМ</span>
         </span>
       </button>

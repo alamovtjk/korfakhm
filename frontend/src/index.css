@@ -292,9 +292,8 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { outline: non
 }
 .brand .mark {
   width: 36px; height: 36px; border-radius: 11px;
-  background: linear-gradient(135deg, var(--violet), var(--teal));
-  display: grid; place-items: center; font-size: 12px; font-weight: 800;
-  box-shadow: 0 6px 18px rgba(124,58,237,.30); color: #fff;
+  display: block; object-fit: contain; flex-shrink: 0;
+  box-shadow: 0 6px 18px rgba(124,58,237,.30);
 }
 .brand i { font-style: normal; background: linear-gradient(90deg, var(--violet), var(--teal)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 
