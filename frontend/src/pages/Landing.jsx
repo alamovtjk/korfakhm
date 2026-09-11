@@ -245,7 +245,8 @@ export default function Landing() {
       </section>
 
       {/* ══ ШАГИ ══ */}
-      <section className="shell section" id="process" style={{ paddingTop: 0 }}>
+      <section className="shell section" id="process" style={{ paddingTop: 0, position: 'relative' }}>
+        <div className="blob t section-glow" style={{ width: 460, height: 460, top: -60, left: -120, opacity: .16 }} />
         <div className="proc-grid">
           <motion.div {...inView(0)} className="proc-left">
             <span className="eyebrow"><span className="line" />{tj ? 'Роҳ ба муваффақият' : 'Путь к успеху'}</span>
@@ -317,7 +318,8 @@ export default function Landing() {
       </section>
 
       {/* ══ CTA ══ */}
-      <section className="shell section" id="cta" style={{ paddingTop: 0 }}>
+      <section className="shell section" id="cta" style={{ paddingTop: 0, position: 'relative' }}>
+        <div className="blob v section-glow" style={{ width: 520, height: 520, bottom: -180, right: -140, opacity: .16 }} />
         <motion.div {...inView(0)} className="banner">
           <div className="banner-inner">
             <div className="banner-ico"><Sparkles size={26} /></div>

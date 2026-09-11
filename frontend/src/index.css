@@ -92,6 +92,7 @@
   --lg-border: #e7e9f2;
   --lg-spec: none;
   --lg-shadow: 0 1px 2px rgba(23,26,43,.04), 0 14px 32px rgba(23,26,43,.07);
+  --grid-line: rgba(18,19,43,.05);
   --r: 22px;
 }
 
@@ -128,6 +129,7 @@
   --lg-border: rgba(255,255,255,.10);
   --lg-spec: none;
   --lg-shadow: 0 1px 2px rgba(0,0,0,.3), 0 14px 32px rgba(0,0,0,.35);
+  --grid-line: rgba(255,255,255,.055);
 }
 :root.dark .badge,
 :root.dark .eyebrow, :root.dark .section-label { border-color: rgba(124,58,237,.35); }
@@ -180,22 +182,43 @@ h4, h5 { font-family: 'Manrope', sans-serif; }
 }
 
 /* ═══════════════════════════════════
-   ФОН: мягкие цветные пятна за герой-секцией — не космос, а
-   аккуратный SaaS-glow, как в референсах (почти незаметный на
-   остальной странице, но даёт объём под шапкой).
+   ФОН: цветной SaaS-glow + едва заметная сетка. Три пятна вместо двух
+   (добавлена фуксия для баланса с фиолетовым/бирюзовым), сетка даёт
+   странице фактуру даже там, где пятен не видно, лёгкий дрейф — по
+   transform, дёшево для GPU, композитится без перерисовки.
    ═══════════════════════════════════ */
 .bg-stage {
   position: fixed; inset: 0; z-index: 0;
   overflow: hidden; background: var(--bg);
   pointer-events: none;
 }
-.blob { position: absolute; border-radius: 50%; filter: blur(90px); pointer-events: none; }
-.blob.v { width: 640px; height: 640px; opacity: .28; background: radial-gradient(circle at 40% 40%, #a78bfa, transparent 70%); top: -260px; left: -160px; }
-.blob.t { width: 620px; height: 620px; opacity: .24; background: radial-gradient(circle at 55% 55%, #5eead4, transparent 70%); top: -120px; right: -220px; }
+.bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 55% at 50% 0%, #000 35%, transparent 92%);
+  mask-image: radial-gradient(ellipse 75% 55% at 50% 0%, #000 35%, transparent 92%);
+}
+.blob { position: absolute; border-radius: 50%; filter: blur(90px); pointer-events: none; will-change: transform; }
+.blob.v { width: 640px; height: 640px; opacity: .28; background: radial-gradient(circle at 40% 40%, #a78bfa, transparent 70%); top: -260px; left: -160px; animation: driftA 70s ease-in-out infinite alternate; }
+.blob.t { width: 620px; height: 620px; opacity: .24; background: radial-gradient(circle at 55% 55%, #5eead4, transparent 70%); top: -120px; right: -220px; animation: driftB 84s ease-in-out infinite alternate; }
+.blob.f { width: 560px; height: 560px; opacity: .18; background: radial-gradient(circle at 50% 50%, #e879f9, transparent 70%); bottom: -240px; left: 30%; animation: driftC 96s ease-in-out infinite alternate; }
+@keyframes driftA { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(30px,20px,0) scale(1.06); } }
+@keyframes driftB { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(-25px,25px,0) scale(1.05); } }
+@keyframes driftC { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(20px,-25px,0) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } }
 :root.dark .blob.v { opacity: .40; }
 :root.dark .blob.t { opacity: .34; }
+:root.dark .blob.f { opacity: .26; }
 .blob.b { display: none; }
 .sky, .neb, .gx-field, .ship { display: none; }
+
+/* Локальные пятна ниже по странице — обычные .blob, но абсолютно
+   спозиционированные внутри секции (едут вместе с контентом), чтобы
+   страница не выглядела оформленной только у шапки. */
+.section-glow { position: absolute; z-index: 0; pointer-events: none; }
 
 /* ── Полоса прогресса прокрутки ── */
 .progress { position: fixed; top: 0; left: 0; width: 100%; height: 2px; z-index: 100; background: linear-gradient(90deg, var(--violet), var(--teal)); transform-origin: left; transform: scaleX(0); will-change: transform; }
