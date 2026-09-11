@@ -153,7 +153,6 @@ export default function SpaceBg() {
         <div className="sky sky-mid" />
         <div className="sky sky-near" />
       </div>
-      <div className="grain" aria-hidden="true" />
     </>
   )
 }
