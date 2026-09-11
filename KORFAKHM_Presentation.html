@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>КОРФАҲМ — Презентатсия 2026</title>
+<style>
+  :root {
+    --green:  #007A33;
+    --red:    #CC0000;
+    --gold:   #F5C518;
+    --navy:   #0D1B4B;
+    --navy2:  #182A6A;
+    --light:  #C8D8FF;
+    --white:  #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #000;
+    overflow: hidden;
+    width: 100vw; height: 100vh;
+    user-select: none;
+  }
+
+  /* ── SLIDES ── */
+  .slide {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--navy);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .55s ease, transform .55s ease;
+    transform: translateX(60px);
+    overflow: hidden;
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(0);
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* ── STRIPES ── */
+  .stripe-top    { height: 6px; background: var(--green); flex-shrink: 0; }
+  .stripe-bottom { height: 6px; background: var(--red);   flex-shrink: 0; margin-top: auto; }
+
+  /* ── PROGRESS ── */
+  #progress-bar {
+    position: fixed;
+    top: 6px; left: 0;
+    height: 3px;
+    background: var(--gold);
+    transition: width .4s ease;
+    z-index: 100;
+  }
+
+  /* ── NAV BUTTONS ── */
+  #nav {
+    position: fixed;
+    bottom: 22px; right: 26px;
+    display: flex; gap: 12px;
+    z-index: 100;
+  }
+  #nav button {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.3);
+    background: rgba(13,27,75,.8);
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all .2s;
+    backdrop-filter: blur(6px);
+  }
+  #nav button:hover { background: var(--green); border-color: var(--green); }
+
+  /* ── SLIDE COUNTER ── */
+  #counter {
+    position: fixed;
+    bottom: 28px; left: 28px;
+    color: rgba(255,255,255,.45);
+    font-size: 13px;
+    z-index: 100;
+    letter-spacing: 1px;
+  }
+
+  /* ── DOT INDICATORS ── */
+  #dots {
+    position: fixed;
+    bottom: 32px;
+    left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px;
+    z-index: 100;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.25);
+    cursor: pointer;
+    transition: all .3s;
+  }
+  .dot.active { background: var(--gold); transform: scale(1.4); }
+
+  /* ═══════════════════════════════════════
+     SLIDE CONTENT HELPERS
+  ═══════════════════════════════════════ */
+  .content {
+    flex: 1;
+    padding: 36px 52px 24px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  h1 { font-size: clamp(32px, 5vw, 58px); color: var(--white); line-height: 1.1; }
+  h2 { font-size: clamp(22px, 3vw, 36px); color: var(--white); line-height: 1.2; }
+
+  .subtitle {
+    font-size: clamp(15px, 2vw, 22px);
+    color: var(--light);
+    margin-top: 8px;
+  }
+
+  /* Cards grid */
+  .cards { display: flex; gap: 20px; margin-top: 28px; flex: 1; }
+  .card {
+    flex: 1;
+    background: var(--navy2);
+    border-radius: 16px;
+    padding: 24px 20px;
+    border-top: 4px solid var(--green);
+    display: flex; flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s;
+  }
+  .card:hover { transform: translateY(-4px); }
+  .card.gold-top  { border-top-color: var(--gold); }
+  .card.red-top   { border-top-color: var(--red); }
+  .card.blue-top  { border-top-color: #0088CC; }
+  .card.purple-top{ border-top-color: #8844CC; }
+  .card.teal-top  { border-top-color: #00AA88; }
+
+  .card-icon  { font-size: 36px; margin-bottom: 12px; }
+  .card-title { font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+  .card-desc  { font-size: 14px; color: var(--light); line-height: 1.5; flex: 1; }
+  .card-stat  { font-size: 48px; font-weight: 900; color: var(--gold); line-height: 1; margin-bottom: 6px; }
+
+  /* Bullet list */
+  .bullets { list-style: none; margin-top: 18px; }
+  .bullets li {
+    display: flex; align-items: flex-start; gap: 12px;
+    color: var(--light);
+    font-size: 17px;
+    margin-bottom: 14px;
+    line-height: 1.45;
+  }
+  .bullets li::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+    margin-top: 7px;
+  }
+  .bullets li.gold::before { background: var(--gold); }
+  .bullets li.red::before  { background: var(--red); }
+
+  /* Two-col layout */
+  .two-col { display: flex; gap: 32px; flex: 1; margin-top: 24px; }
+  .col { flex: 1; display: flex; flex-direction: column; }
+
+  /* Tag badge */
+  .badge {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--green);
+    color: var(--white);
+    margin-top: 10px;
+    align-self: flex-start;
+  }
+  .badge.gold   { background: var(--gold); color: #000; }
+  .badge.red    { background: var(--red); }
+  .badge.navy   { background: var(--navy2); border: 1px solid var(--gold); color: var(--gold); }
+
+  /* Chat bubbles */
+  .chat { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+  .bubble {
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    max-width: 90%;
+  }
+  .bubble.user {
+    background: var(--navy2);
+    color: var(--light);
+    border-bottom-right-radius: 4px;
+    align-self: flex-end;
+    border: 1px solid rgba(255,255,255,.1);
+  }
+  .bubble.bot {
+    background: rgba(0,122,51,.25);
+    color: var(--white);
+    border: 1px solid var(--green);
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+  }
+  .bubble .who {
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--gold);
+  }
+
+  /* RIASEC hexagons row */
+  .hex-row { display: flex; gap: 16px; margin-top: 20px; flex-wrap: wrap; }
+  .hex {
+    flex: 1; min-width: 100px;
+    background: var(--navy2);
+    border-radius: 12px;
+    padding: 16px 10px;
+    text-align: center;
+    border-bottom: 3px solid var(--green);
+  }
+  .hex-letter { font-size: 36px; font-weight: 900; }
+  .hex-name   { font-size: 12px; color: var(--light); margin-top: 4px; }
+
+  /* Tech stack pills */
+  .tech-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 24px; flex: 1; }
+  .tech-card {
+    background: var(--navy2);
+    border-radius: 14px;
+    padding: 20px 16px;
+    display: flex; flex-direction: column; gap: 8px;
+    border-left: 4px solid var(--green);
+    transition: transform .2s;
+  }
+  .tech-card:hover { transform: translateY(-3px); }
+  .tech-card .ticon { font-size: 28px; }
+  .tech-card .tname { font-size: 17px; font-weight: 700; color: var(--white); }
+  .tech-card .tdesc { font-size: 13px; color: var(--light); }
+
+  /* Timeline */
+  .timeline { display: flex; gap: 20px; margin-top: 24px; flex: 1; }
+  .phase {
+    flex: 1;
+    background: var(--navy2);
+    border-radius: 16px;
+    padding: 22px 18px;
+    border-top: 4px solid var(--green);
+    display: flex; flex-direction: column;
+  }
+  .phase-title { font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+  .phase-when  { font-size: 13px; color: var(--gold); font-style: italic; margin-bottom: 14px; }
+  .phase-items { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .phase-items li {
+    font-size: 14px;
+    color: var(--light);
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.4;
+  }
+  .phase-items li::before {
+    content: '→';
+    position: absolute; left: 0;
+    color: var(--gold);
+  }
+
+  /* Numbers grid */
+  .nums-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 24px; flex: 1; }
+  .num-card {
+    background: var(--navy2);
+    border-radius: 16px;
+    padding: 22px 16px;
+    text-align: center;
+    border-top: 4px solid var(--green);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px;
+    transition: transform .2s;
+  }
+  .num-card:hover { transform: translateY(-4px); }
+  .num-big  { font-size: 52px; font-weight: 900; color: var(--gold); line-height: 1; }
+  .num-label{ font-size: 14px; color: var(--light); text-align: center; line-height: 1.4; }
+
+  /* ── SLIDE 1 special ── */
+  #s1 {
+    background: linear-gradient(135deg, #0D1B4B 0%, #182A6A 60%, #0D1B4B 100%);
+  }
+  .s1-inner {
+    display: flex;
+    height: 100%;
+  }
+  .s1-left {
+    flex: 1.2;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 52px 48px;
+  }
+  .s1-right {
+    flex: 0.8;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 40px;
+    position: relative;
+  }
+  .s1-logo {
+    font-size: clamp(52px, 7vw, 88px);
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: -2px;
+    line-height: 1;
+  }
+  .s1-tagline {
+    font-size: clamp(16px, 2.2vw, 24px);
+    color: var(--light);
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+  .s1-badge {
+    margin-top: 32px;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--green);
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--white);
+    align-self: flex-start;
+  }
+  .big-icon {
+    font-size: 120px;
+    filter: drop-shadow(0 0 30px rgba(245,197,24,.35));
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-12px); }
+  }
+  .s1-sub {
+    font-size: 15px; color: var(--gold);
+    margin-top: 14px; text-align: center;
+    font-weight: 600;
+  }
+
+  /* ── SLIDE 10 special ── */
+  .finale-wrap {
+    display: flex; align-items: center; justify-content: center;
+    flex: 1; flex-direction: column; text-align: center;
+    gap: 18px; padding: 20px 52px;
+  }
+  .finale-title {
+    font-size: clamp(48px, 7vw, 82px);
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: -1px;
+  }
+  .finale-sub { font-size: 22px; color: var(--light); max-width: 680px; line-height: 1.6; }
+  .finale-pills { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+  .pill {
+    padding: 9px 20px;
+    border-radius: 24px;
+    font-size: 15px; font-weight: 600;
+    background: var(--navy2);
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,.2);
+  }
+  .pill.g { background: var(--green); border-color: var(--green); }
+  .pill.au { background: transparent; border-color: var(--gold); color: var(--gold); }
+  .divider {
+    width: 80px; height: 3px;
+    background: linear-gradient(90deg, var(--red), var(--green));
+    border-radius: 2px;
+  }
+
+  /* IQ level bars */
+  .iq-bars { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+  .iq-bar {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--navy2);
+    border-radius: 10px;
+    padding: 10px 16px;
+    border-left: 4px solid var(--green);
+  }
+  .iq-score { font-size: 18px; font-weight: 800; min-width: 80px; }
+  .iq-label { font-size: 14px; color: var(--light); }
+  .iq-fill  {
+    margin-left: auto;
+    height: 6px; border-radius: 3px;
+    background: var(--green);
+    min-width: 40px;
+  }
+
+  /* Decorative bg circle */
+  .bg-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,.025);
+    pointer-events: none;
+  }
+
+  /* Animated entrance for cards */
+  .slide.active .card,
+  .slide.active .tech-card,
+  .slide.active .phase,
+  .slide.active .num-card,
+  .slide.active .hex {
+    animation: cardIn .45s ease both;
+  }
+  .slide.active .card:nth-child(2), .slide.active .tech-card:nth-child(2),
+  .slide.active .phase:nth-child(2), .slide.active .num-card:nth-child(2),
+  .slide.active .hex:nth-child(2) { animation-delay: .08s; }
+  .slide.active .card:nth-child(3), .slide.active .tech-card:nth-child(3),
+  .slide.active .phase:nth-child(3), .slide.active .num-card:nth-child(3),
+  .slide.active .hex:nth-child(3) { animation-delay: .16s; }
+  .slide.active .card:nth-child(4), .slide.active .tech-card:nth-child(4),
+  .slide.active .num-card:nth-child(4), .slide.active .hex:nth-child(4) { animation-delay: .22s; }
+  .slide.active .card:nth-child(5), .slide.active .tech-card:nth-child(5),
+  .slide.active .num-card:nth-child(5), .slide.active .hex:nth-child(5) { animation-delay: .28s; }
+  .slide.active .card:nth-child(6), .slide.active .tech-card:nth-child(6),
+  .slide.active .num-card:nth-child(6), .slide.active .hex:nth-child(6) { animation-delay: .34s; }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Launch button */
+  .launch-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 36px;
+    background: linear-gradient(135deg, var(--green), #00aa44);
+    color: var(--white);
+    font-size: 20px;
+    font-weight: 800;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    letter-spacing: .5px;
+    box-shadow: 0 6px 30px rgba(0,122,51,.45);
+    transition: all .25s;
+    margin-top: 6px;
+  }
+  .launch-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 12px 40px rgba(0,122,51,.6);
+    background: linear-gradient(135deg, #009944, #00cc55);
+  }
+  .launch-btn:active { transform: scale(.97); }
+  .launch-btn .btn-icon { font-size: 26px; }
+
+  /* Keyboard hint */
+  #hint {
+    position: fixed; bottom: 70px; right: 26px;
+    font-size: 11px; color: rgba(255,255,255,.3);
+    z-index: 100; letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+<div id="counter">1 / 11</div>
+<div id="dots"></div>
+<div id="nav">
+  <button id="btn-prev" onclick="go(-1)">&#8592;</button>
+  <button id="btn-next" onclick="go(+1)">&#8594;</button>
+</div>
+<div id="hint">← → ёки тугмаҳои клавиатура</div>
+
+<!-- ═══════════════════ НОВЫЙ СЛАЙД: Зеҳни СунъӣЧИСТ ═══════════════════ -->
+
+<!-- ═══════════════════════════════════════════════
+     СЛАЙД 1 — ЗАГЛОВОК
+═══════════════════════════════════════════════ -->
+<div class="slide active" id="s1">
+  <div class="stripe-top"></div>
+  <div class="s1-inner">
+    <div class="s1-left">
+      <div class="s1-logo">КОРФАҲМ</div>
+      <div class="s1-tagline">
+        Платформаи зеҳни сунъии касбёбӣ<br>барои ҷавонони Тоҷикистон
+      </div>
+      <div class="s1-badge">🏆 «Илм Фуруғи Маърифат» — 2026</div>
+    </div>
+    <div class="s1-right">
+      <div class="bg-circle" style="width:340px;height:340px;top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+      <div class="big-icon">🎯</div>
+      <div class="s1-sub">Интихоби касб бо ёрии Зеҳни Сунъӣ</div>
+    </div>
+  </div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     СЛАЙД 2 — МУШКИЛОТ
+═══════════════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="stripe-top"></div>
+  <div class="content">
+    <div class="label">Мушкилот</div>
+    <h2>Ҷавонони мо дар бораи касб чӣ медонанд?</h2>
+    <div class="cards">
+      <div class="card red-top">
+        <div class="card-icon">😕</div>
+        <div class="card-stat">65%</div>
+        <div class="card-title">Бе нақшаи касбӣ</div>
+        <div class="card-desc">аз ҷавонони Тоҷикистон пас аз мактаб намедонанд кадом касбро интихоб кунанд</div>
+      </div>
+      <div class="card gold-top">
+        <div class="card-icon">📉</div>
+        <div class="card-stat">40%</div>
+        <div class="card-title">Бе ҳадаф</div>
+        <div class="card-desc">баъди хатми мактаб бе нақшаи равшани касбӣ ба оянда нигоҳ мекунанд</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <div class="card-stat">0</div>
+        <div class="card-title">Платформаи тоҷикӣ</div>
+        <div class="card-desc">дар Тоҷикистон платформаи касбёбии Зеҳни Сунъӣ ба забони тоҷикӣ вуҷуд надошт — то имрӯз</div>
+      </div>
+    </div>
+  </div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     СЛАЙД 3 — ҲАЛЛИ МО
+═══════════════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="stripe-top"></div>
+  <div class="content">
+    <div class="label">Ҳалли мо</div>
+    <h2>КОРФАҲМ — ҳама чиз дар як ҷо</h2>
+    <div class="cards" style="flex-wrap:wrap; gap:14px;">
+      <div class="card" style="min-width:30%; flex:1;">
+        <div class="card-icon">🧠</div>
+        <div class="card-title">Санҷиши касбӣ бо ZAKA</div>
+        <div class="card-desc">ZAKA 8 савол медиҳад — ҳар ҷавоб адаптатсия мешавад — 5 касби мувофиқ бо Зеҳни Сунъӣ</div>
+      </div>
+      <div class="card gold-top" style="min-width:30%; flex:1;">
+        <div class="card-icon">💡</div>
+        <div class="card-title">Санҷиши IQ</div>
+        <div class="card-desc">25 савол — муайян кардани дараҷаи зеҳнӣ бо перцентил ва графикҳо</div>
+      </div>
+      <div class="card blue-top" style="min-width:30%; flex:1;">
+        <div class="card-icon">🤖</div>
+        <div class="card-title">ZAKA — Дастёри Зеҳни Сунъӣ</div>
+        <div class="card-desc">Чатботи DeepSeek AI ба забони русӣ ва тоҷикӣ</div>
+      </div>
+      <div class="card red-top" style="min-width:30%; flex:1;">
+        <div class="card-icon">💼</div>
+        <div class="card-title">Вакансияҳо</div>
+        <div class="card-desc">Ҷойҳои корӣ аз компанияҳои аслии Тоҷикистон</div>
+      </div>
+      <div class="card purple-top" style="min-width:30%; flex:1;">
+        <div class="card-icon">📋</div>
+        <div class="card-title">Нақшаи рушд</div>
+        <div class="card-desc">Зеҳни Сунъӣ нақшаи инфиродии касбии 6-қадамӣ тартиб медиҳад</div>
+      </div>
+      <div class="card teal-top" style="min-width:30%; flex:1;">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Омор</div>
+        <div class="card-desc">Дидани натиҷаи умумии корбарони платформа</div>
+      </div>
+    </div>
+  </div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     СЛАЙД 4 — Зеҳни Сунъӣ ЧИСТ?
+═══════════════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="stripe-top"></div>
+  <div class="content">
+    <div class="label">Зеҳни Сунъӣ</div>
+    <h2>Зеҳни Сунъӣ чист ва дар КОРФАҲМ чӣ кор мекунад?</h2>
+    <div class="two-col" style="gap:24px;">
+      <div class="col">
+        <div style="background:var(--navy2);border-radius:14px;padding:18px 20px;border-left:4px solid var(--gold);margin-bottom:16px;">
+          <div style="color:var(--gold);font-size:13px;font-weight:700;letter-spacing:2px;margin-bottom:8px;">ЗЕҲНИ СУНЪӢ ЧИ АСТ?</div>
+          <div style="color:var(--light);font-size:15px;line-height:1.7;">
+            <b style="color:white;">Зеҳни Сунъӣ</b> — ин системаи компютерие аст, ки мисли одам фикр мекунад, аз маълумот меомӯзад ва хулоса мебарорад. Зеҳни Сунъӣ миллионҳо китоб, мақола ва маълумоти илмиро мехонад ва аз онҳо меомӯзад. Ҳамин тавр ба ҳар савол оқилона ҷавоб медиҳад.
+          </div>
+        </div>
+        <div style="background:var(--navy2);border-radius:14px;padding:18px 20px;border-left:4px solid var(--green);">
+          <div style="color:var(--green);font-size:13px;font-weight:700;letter-spacing:2px;margin-bottom:10px;">ДАР КОРФАҲМ ЗЕҲНИ СУНЪӢ 3 КОР МЕКУНАД:</div>
+          <ul class="bullets" style="margin-top:0;">
+            <li class="gold">🤖 Бо ту суҳбат мекунад — ZAKA 8 савол медиҳад ва адаптатсия мешавад</li>
+            <li>🧠 Шахсияти туро таҳлил мекунад — баъди санҷиши касбӣ</li>
+            <li class="gold">📋 Нақшаи рушди касбӣ тартиб медиҳад — барои 6 қадам</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col">
+        <div style="color:var(--light);font-size:13px;font-weight:700;letter-spacing:2px;margin-bottom:12px;">ЗЕҲНИ СУНЪӢ ДАР КОРФАҲМ ЧӢ ТАВ КОР МЕКУНАД:</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:flex-start;gap:14px;background:var(--navy2);border-radius:12px;padding:12px 14px;">
+            <div style="min-width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:white;flex-shrink:0;">1</div>
+            <div style="color:var(--light);font-size:14px;line-height:1.5;"><b style="color:white;">ZAKA</b> — дастёри Зеҳни Сунъӣ — бо ту суҳбат мекунад ва <b style="color:white;">8 савол</b> медиҳад</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:14px;background:var(--navy2);border-radius:12px;padding:12px 14px;">
+            <div style="min-width:32px;height:32px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#000;flex-shrink:0;">2</div>
+            <div style="color:var(--light);font-size:14px;line-height:1.5;">Ҳар савол ба ҷавоби қаблӣ <b style="color:white;">адаптатсия мешавад</b> — мисли суҳбати зинда</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:14px;background:var(--navy2);border-radius:12px;padding:12px 14px;">
+            <div style="min-width:32px;height:32px;border-radius:50%;background:#0088CC;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:white;flex-shrink:0;">3</div>
+            <div style="color:var(--light);font-size:14px;line-height:1.5;">Зеҳни Сунъӣ <b style="color:white;">5 касби мувофиқтарин</b>-ро бо фоизи мутобиқат нишон медиҳад</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:14px;background:var(--navy2);border-radius:12px;padding:12px 14px;">
+            <div style="min-width:32px;height:32px;border-radius:50%;background:#8844CC;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:white;flex-shrink:0;">4</div>
+            <div style="color:var(--light);font-size:14px;line-height:1.5;">Зеҳни Сунъӣ <b style="color:white;">тавсифи психологии инфиродӣ</b> менависад — кӣ ҳастӣ, қобилиятҳоят чист</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:14px;background:var(--navy2);border-radius:12px;padding:12px 14px;">
+            <div style="min-width:32px;height:32px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:white;flex-shrink:0;">5</div>
+            <div style="color:var(--light);font-size:14px;line-height:1.5;">Зеҳни Сунъӣ <b style="color:white;">нақшаи 6-қадамаи рушди касбӣ</b> тартиб медиҳад — бо курсҳо ва вакансияҳо</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     СЛАЙД 5 — САНҶИШИ КАСБӢ БО ZAKA
+═══════════════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="stripe-top"></div>
+  <div class="content">
+    <div class="label">Санҷиши касбӣ</div>
+    <h2>ZAKA бо ту суҳбат мекунад ва касбатро пайдо мекунад</h2>
+    <div class="two-col">
+      <div class="col">
+        <div style="background:var(--navy2);border-radius:12px;padding:14px 16px;border-left:4px solid var(--gold);margin-bottom:14px;">
+          <div style="color:var(--gold);font-size:13px;font-weight:700;margin-bottom:6px;">ЧӢ ТАВ КОР МЕКУНАД?</div>
+          <div style="color:var(--light);font-size:14px;line-height:1.6;">ZAKA — дастёри Зеҳни Сунъӣ — мисли мушовири касбӣ бо ту суҳбат мекунад. Ба ҷои 35 саволи якхела, ZAKA <b style="color:white;">8 савол</b> медиҳад ва ҳар савол ба ҷавоби қаблии ту адаптатсия мешавад.</div>
+        </div>
+        <ul class="bullets" style="margin-top:0;">
+          <li>ZAKA савол медиҳад — ту ё вариантро интихоб мекунӣ ё менависӣ</li>
+          <li class="gold">Ҳар ҷавоб ба саволи навбатӣ таъсир мерасонад — суҳбати зинда!</li>
+          <li>5 касби мувофиқтарин бо фоизи мутобиқат</li>
+          <li class="gold">Зеҳни Сунъӣ истеъдоди пинҳонии туро ошкор мекунад</li>
+          <li>Тавсифи психологии инфиродӣ — на шаблонӣ, балки дар бораи ту</li>
+        </ul>
+      </div>
+      <div class="col">
+        <div style="color:var(--light);font-size:13px;font-weight:700;letter-spacing:2px;margin-bottom:10px;">НАМУНАИ СУҲБАТ БО ZAKA:</div>
+        <div class="chat">
+          <div class="bubble bot">
+            <div class="who">🤖 ZAKA</div>
+            Салом! Дар вақти озод чӣ кор мекунӣ?
+          </div>
+          <div class="bubble user">
+            <div class="who">Ту →</div>
+            Компютер бозӣ мекунам ва барнома менависам
+          </div>
+          <div class="bubble bot">
+            <div class="who">🤖 ZAKA</div>
+            Ҷолиб! Дар барнома чӣ зиёд хуш меояд — дизайн сохтан ё масъалаҳои мантиқиро ҳал кардан?
+          </div>
+          <div class="bubble user">
+            <div class="who">Ту →</div>
+            Масъалаҳои мантиқӣ — ин барои ман ҷолибтар аст
+          </div>
+          <div class="bubble bot">
+            <div class="who">🤖 ZAKA</div>
+            Аъло! Натиҷа: Backend-разработчик 94% · Data Scientist 87% · QA Engineer 81%...
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     СЛАЙД 6 — САНҶИШИ IQ
+═══════════════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="stripe-top"></div>
+  <div class="content">
+    <div class="label">Санҷиши IQ</div>
+    <h2>Аввалин санҷиши IQ ба забони тоҷикӣ</h2>
+    <div class="two-col">
+      <div class="col">
+        <ul class="bullets" style="margin-top:14px;">
+          <li>25 савол дар 5 категория</li>
+          <li>Мантиқ ва алгоритмҳо</li>
+          <li>Муносибатҳои фазоӣ</li>
+          <li class="gold">Тафаккури рақамӣ ва серияҳо</li>
+          <li>Ҳарфӣ ва аналогияҳо</li>
+          <li class="gold">Натиҷа бо перцентил</li>
+          <li>Графики визуалии натиҷа</li>
+        </ul>
+      </div>
+      <div class="col">
+        <div style="color:var(--light);font-size:14px;margin-bottom:12px;font-weight:600;">ДАРАҶАҲОИ IQ:</div>
+        <div class="iq-bars">
+          <div class="iq-bar" style="border-left-color:#F5C518;">
+            <div class="iq-score" style="color:#F5C518;">130+</div>
+            <div class="iq-label">Олӣ</div>
+            <div class="iq-fill" style="background:#F5C518;width:95%;"></div>
+          </div>
+          <div class="iq-bar" style="border-left-color:#007A33;">
+            <div class="iq-score" style="color:#007A33;">115–129</div>
+            <div class="iq-label">Баланд</div>
+            <div class="iq-fill" style="background:#007A33;width:75%;"></div>
+          </div>
+          <div class="iq-bar" style="border-left-color:#0088CC;">
+            <div class="iq-score" style="color:#0088CC;">100–114</div>
+            <div class="iq-label">Аз миёна боло</div>
+            <div class="iq-fill" style="background:#0088CC;width:58%;"></div>
+          </div>
+          <div class="iq-bar" style="border-left-color:#8844CC;">
+            <div class="iq-score" style="color:#8844CC;">85–99</div>
+            <div class="iq-label">Миёна</div>
+            <div class="iq-fill" style="background:#8844CC;width:40%;"></div>
+          </div>
+          <div class="iq-bar" style="border-left-color:#AA4444;">
+            <div class="iq-score" style="color:#AA4444;">70–84</div>
+            <div class="iq-label">Аз миёна поён</div>
+            <div class="iq-fill" style="background:#AA4444;width:25%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     СЛАЙД 7 — ZAKA ЧАТБОТ
+═══════════════════════════════════════════════ -->
+<div class="slide" id="s7">
+  <div class="stripe-top"></div>
+  <div class="content">
+    <div class="label">ZAKA — Дастёри Зеҳни Сунъӣ</div>
+    <h2>Зеҳни Сунъӣ бо ту суҳбат мекунад — 24/7, бо ду забон</h2>
+    <div class="two-col">
+      <div class="col">
+        <div style="background:var(--navy2);border-radius:12px;padding:14px 16px;border-left:4px solid var(--gold);margin-bottom:14px;">
+          <div style="color:var(--gold);font-size:13px;font-weight:700;margin-bottom:6px;">ZAKA КИ АСТ?</div>
+          <div style="color:var(--light);font-size:14px;line-height:1.65;">
+            <b style="color:white;">ZAKA</b> — ин дастёри зеҳни сунъӣ аст, ки дар асоси <b style="color:var(--gold);">DeepSeek AI</b> кор мекунад. DeepSeek — яке аз пешрафтатарин моделҳои Зеҳни Сунъӣ дар ҷаҳон аст, ки миллионҳо матнро омӯхтааст ва ба ҳар савол оқилона ҷавоб медиҳад.
+          </div>
+        </div>
+        <ul class="bullets" style="margin-top:0;">
+          <li>Ба <b>русӣ ва тоҷикӣ</b> фаҳмо ҷавоб медиҳад</li>
+          <li class="gold">Маоши воқеии касбҳои Тоҷикистонро медонад</li>
+          <li>Ширкатҳои Душанбе ва вакансияҳоро мешиносад</li>
+          <li class="gold">Барои ҳар касб курсу академияҳо пешниҳод мекунад</li>
+          <li>Агар интернет набошад — аз захираи худаш ҷавоб медиҳад</li>
+        </ul>
+        <div style="margin-top:auto; display:flex; gap:10px; flex-wrap:wrap;">
+          <div class="badge">🇹🇯 Тоҷикӣ</div>
+          <div class="badge" style="background:#183060;">🇷🇺 Русӣ</div>
+          <div class="badge gold" style="color:#000;">DeepSeek AI</div>
+        </div>
+      </div>
+      <div class="col">
+        <div style="color:var(--light);font-size:13px;font-weight:600;margin-bottom:8px;">НАМУНАИ СУҲБАТ БО ZAKA:</div>
+        <div class="chat">
+          <div class="bubble user">
+            <div class="who">Корбар →</div>
+            Чӣ тавр барномасоз шавам?
+          </div>
+          <div class="bubble bot">
+            <div class="who">🤖 ZAKA</div>
+            Барои барномасозӣ Python ё JavaScript-ро оғоз кун — ин аз ҳама осон. Alif Academy ва Somon IT дар Душанбе курсҳои хуб доранд. Маоши аввала: 3000–5000 сомонӣ!
+          </div>
+          <div class="bubble user">
+            <div class="who">Корбар →</div>
+            Маоши дизайнер чанд аст?
+          </div>
+          <div class="bubble bot">
+            <div class="who">🤖 ZAKA</div>
+            Дизайнери UX/UI дар Душанбе 3000–6000 сомонӣ мегирад. Дизайнери хуб метавонад барои ширкатҳои байналмилалӣ аз хона кор кунад ва то $500–800 дар моҳ бигирад!
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     СЛАЙД 8 — ТЕХНОЛОГИЯҲО
+═══════════════════════════════════════════════ -->
+<div class="slide" id="s8">
+  <div class="stripe-top"></div>
+  <div class="content">
+    <div class="label">Технологияҳо</div>
+    <h2>Стеки технологии муосир</h2>
+    <div class="tech-grid">
+      <div class="tech-card" style="border-left-color:#0088CC;">
+        <div class="ticon">⚛️</div>
+        <div class="tname" style="color:#0088CC;">React + Vite</div>
+        <div class="tdesc">Интерфейси корбар — тез ва муосир</div>
+      </div>
+      <div class="tech-card" style="border-left-color:#06B6D4;">
+        <div class="ticon">🎨</div>
+        <div class="tname" style="color:#06B6D4;">TailwindCSS v4</div>
+        <div class="tdesc">Тарроҳии зебо ва аниматсияҳо</div>
+      </div>
+      <div class="tech-card" style="border-left-color:#009688;">
+        <div class="ticon">🚀</div>
+        <div class="tname" style="color:#009688;">FastAPI</div>
+        <div class="tdesc">API бэкенд бо Python — зуд ва эмин</div>
+      </div>
+      <div class="tech-card" style="border-left-color:#8844CC;">
+        <div class="ticon">🗄️</div>
+        <div class="tname" style="color:#8844CC;">SQLite + SQLAlchemy</div>
+        <div class="tdesc">Пойгоҳи додаҳо бо async дастрасӣ</div>
+      </div>
+      <div class="tech-card" style="border-left-color:#CC0000;">
+        <div class="ticon">🔐</div>
+        <div class="tname" style="color:#CC0000;">JWT + bcrypt</div>
+        <div class="tdesc">Аутентификатсияи бехатар</div>
+      </div>
+      <div class="tech-card" style="border-left-color:#F5C518;">
+        <div class="ticon">🧠</div>
+        <div class="tname" style="color:#F5C518;">DeepSeek AI</div>
+        <div class="tdesc">Таҳлили Зеҳни Сунъӣ барои санҷишҳо ва чат</div>
+      </div>
+    </div>
+  </div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     СЛАЙД 9 — НАТИҶАҲО
+═══════════════════════════════════════════════ -->
+<div class="slide" id="s9">
+  <div class="stripe-top"></div>
+  <div class="content">
+    <div class="label">Натиҷаҳо</div>
+    <h2>Чӣ медиҳем ба ҷавонони Тоҷикистон</h2>
+    <div class="nums-grid">
+      <div class="num-card" style="border-top-color:#007A33;">
+        <div class="num-big" style="color:#007A33;">8</div>
+        <div class="num-label">Савол аз ZAKA — суҳбати зинда бо Зеҳни Сунъӣ</div>
+      </div>
+      <div class="num-card" style="border-top-color:#0088CC;">
+        <div class="num-big" style="color:#0088CC;">25</div>
+        <div class="num-label">Савол дар санҷиши IQ</div>
+      </div>
+      <div class="num-card" style="border-top-color:#F5C518;">
+        <div class="num-big" style="color:#F5C518;">5</div>
+        <div class="num-label">Касби мувофиқ барои ҳар кас</div>
+      </div>
+      <div class="num-card" style="border-top-color:#CC0000;">
+        <div class="num-big" style="color:#CC0000;">2</div>
+        <div class="num-label">Забон: Русӣ ва Тоҷикӣ</div>
+      </div>
+      <div class="num-card" style="border-top-color:#8844CC;">
+        <div class="num-big" style="color:#8844CC;">6</div>
+        <div class="num-label">Қадам дар нақшаи рушди касбӣ</div>
+      </div>
+      <div class="num-card" style="border-top-color:#00AA44;">
+        <div class="num-big" style="color:#00AA44;">∞</div>
+        <div class="num-label">Имкониятҳои карьера барои ҷавонон</div>
+      </div>
+    </div>
+  </div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     СЛАЙД 10 — НАҚШАИ ОЯНДА
+═══════════════════════════════════════════════ -->
+<div class="slide" id="s10">
+  <div class="stripe-top"></div>
+  <div class="content">
+    <div class="label">Нақшаи оянда</div>
+    <h2>Рушди минбаъдаи платформа</h2>
+    <div class="timeline">
+      <div class="phase" style="border-top-color:#007A33;">
+        <div class="phase-title">🔷 Марҳалаи 1</div>
+        <div class="phase-when">Ҳозир — 2026</div>
+        <ul class="phase-items">
+          <li>Санҷишҳои RIASEC ва IQ</li>
+          <li>ZAKA чатбот (DeepSeek AI)</li>
+          <li>Вакансияҳо аз ширкатҳои ТЖ</li>
+          <li>Нақшаи рушди касбӣ</li>
+          <li>Ду забон: русӣ ва тоҷикӣ</li>
+        </ul>
+      </div>
+      <div class="phase" style="border-top-color:#F5C518;">
+        <div class="phase-title">🔶 Марҳалаи 2</div>
+        <div class="phase-when">2026 Q3 — Q4</div>
+        <ul class="phase-items">
+          <li>Барномаи мобилӣ (iOS/Android)</li>
+          <li>Тавсияҳои ML (scikit-learn)</li>
+          <li>Генератори CV (PDF)</li>
+          <li>API барои мактабҳо ва донишгоҳҳо</li>
+          <li>Омори пешрафта</li>
+        </ul>
+      </div>
+      <div class="phase" style="border-top-color:#CC0000;">
+        <div class="phase-title">🔴 Марҳалаи 3</div>
+        <div class="phase-when">2027</div>
+        <ul class="phase-items">
+          <li>Дастраси тамоми Осиёи Миёна</li>
+          <li>Ҳамкорӣ бо вазоратҳои ТЖ</li>
+          <li>100 000+ корбар</li>
+          <li>Санҷишҳои иловагӣ</li>
+          <li>Сармоягузорони хориҷӣ</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     СЛАЙД 11 — ХУЛОСА
+═══════════════════════════════════════════════ -->
+<div class="slide" id="s11">
+  <div class="stripe-top"></div>
+  <div class="finale-wrap">
+    <div style="font-size:60px;animation:float 3s ease-in-out infinite;">🏆</div>
+    <div class="finale-title">КОРФАҲМ</div>
+    <div class="divider"></div>
+    <div class="finale-sub">
+      Ояндаи ҷавонони Тоҷикистон — бо ёрии зеҳни сунъӣ!
+    </div>
+    <div class="finale-pills">
+      <div class="pill g">🧠 RIASEC санҷиш</div>
+      <div class="pill g">💡 IQ санҷиш</div>
+      <div class="pill g">🤖 ZAKA AI</div>
+      <div class="pill au">💼 Вакансияҳо</div>
+      <div class="pill au">📋 Нақшаи рушд</div>
+      <div class="pill au">🌐 Ду забон</div>
+    </div>
+    <div style="color:var(--light);font-size:15px;margin-top:4px;opacity:.7;">
+      «Илм Фуруғи Маърифат» 2026 — Трек: Зеҳни Сунъӣ ва Барномасозӣ
+    </div>
+    <a class="launch-btn" href="http://localhost:5173" target="_blank">
+      <span class="btn-icon">🚀</span>
+      Кушодани КОРФАҲМ
+    </a>
+    <div style="color:rgba(200,216,255,.35);font-size:12px;letter-spacing:1px;">localhost:5173 — start.bat-ро аввал иҷро кун</div>
+  </div>
+  <div class="stripe-bottom"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════ -->
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total  = slides.length;
+  let cur = 0;
+
+  // Build dots
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+
+  function goTo(n) {
+    if (n < 0 || n >= total) return;
+    slides[cur].classList.remove('active');
+    slides[cur].classList.add('exit');
+    setTimeout(() => slides[cur].classList.remove('exit'), 600);
+    cur = n;
+    slides[cur].classList.add('active');
+    document.querySelectorAll('.dot').forEach((d, i) => {
+      d.classList.toggle('active', i === cur);
+    });
+    document.getElementById('counter').textContent = `${cur + 1} / ${total}`;
+    document.getElementById('progress-bar').style.width =
+      `${((cur + 1) / total) * 100}%`;
+  }
+
+  function go(dir) { goTo(cur + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ')  go(+1);
+    if (e.key === 'ArrowLeft')                    go(-1);
+  });
+
+  // Touch / swipe
+  let tx = 0;
+  document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+  document.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+  });
+
+  // Init progress
+  document.getElementById('progress-bar').style.width =
+    `${(1 / total) * 100}%`;
+</script>
+</body>
+</html>

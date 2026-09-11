@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Start-Process \"c:\\\\Users\\\\mardo\\\\Desktop\\\\����� �����\\\\KORFAKHM_Presentation.html\")",
+      "PowerShell(python --version)",
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "PowerShell(Start-Process \"c:\\\\Users\\\\mardo\\\\Desktop\\\\����� �����\\\\start.bat\" -Wait -PassThru)",
+      "PowerShell(Start-Process cmd -ArgumentList '/c', 'start', '\"\"', '/D', 'c:\\\\Users\\\\mardo\\\\Desktop\\\\����� �����\\\\backend', 'cmd', '/k', 'python run.py' -PassThru)",
+      "PowerShell(& \"c:\\\\Users\\\\mardo\\\\Desktop\\\\����� �����\\\\start_helper.ps1\" 2>&1)",
+      "PowerShell(powershell.exe -ExecutionPolicy Bypass -File \"c:\\\\Users\\\\mardo\\\\Desktop\\\\Новая папка\\\\start_helper.ps1\" 2>&1 | Select-Object -First 5)",
+      "PowerShell(netstat -an)",
+      "PowerShell(if \\(!\\(Test-Path \"C:\\\\tmp\"\\)\\) { New-Item -ItemType Directory -Path \"C:\\\\tmp\" })"
+    ]
+  }
+}
