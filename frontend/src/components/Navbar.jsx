@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { ArrowRight, ArrowUp } from 'lucide-react'
+import { ArrowRight, ArrowUp, Sun, Moon } from 'lucide-react'
 import { useLang } from '../contexts/LangContext'
 import { useAuth } from '../contexts/AuthContext'
+import { useTheme } from '../contexts/ThemeContext'
 
 const LANGS  = ['ru', 'tj']
 const LABELS = { ru: 'РУ', tj: 'ТҶ' }
@@ -37,6 +38,7 @@ export default function Navbar() {
   const location  = useLocation()
   const { lang, setLanguage, t } = useLang()
   const { user, logout } = useAuth()
+  const { isDark, toggle: toggleTheme } = useTheme()
 
   const [scrolled, setScrolled] = useState(false)
   const [open,     setOpen]     = useState(false)
@@ -119,6 +121,10 @@ export default function Navbar() {
           <div className="nav-right">
             <LangSwitch lang={lang} setLanguage={setLanguage} />
 
+            <button className="theme-toggle" onClick={toggleTheme} aria-label={isDark ? 'Светлая тема' : 'Тёмная тема'} title={isDark ? 'Светлая тема' : 'Тёмная тема'}>
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+
             <button className="btn btn-ghost nav-ghost" onClick={() => go('/post-vacancy')}>
               {vacancyLabel}
             </button>
@@ -196,7 +202,12 @@ export default function Navbar() {
 
         <div className="drawer-foot">
           <span className="drawer-foot-label">{lang === 'tj' ? 'Забон' : 'Язык'}</span>
-          <LangSwitch lang={lang} setLanguage={setLanguage} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button className="theme-toggle" onClick={toggleTheme} aria-label={isDark ? 'Светлая тема' : 'Тёмная тема'}>
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <LangSwitch lang={lang} setLanguage={setLanguage} />
+          </div>
         </div>
       </div>
       </>, document.body)}

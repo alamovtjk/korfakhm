@@ -103,7 +103,7 @@ export default function Auth() {
           borderRadius:12, display:'block', objectFit:'contain',
           boxShadow:'0 6px 20px rgba(124,58,237,0.35)',
         }} />
-        <span style={{ fontWeight:900, fontSize:22, color:text, fontFamily:'Manrope, system-ui', letterSpacing:'-0.02em' }}>
+        <span style={{ fontWeight:700, fontSize:24, color:text, fontFamily:"'Noto Serif Brand', 'Unbounded', serif", letterSpacing:'-0.01em' }}>
           КОР
           <span style={{ background:'linear-gradient(135deg,#7c3aed,#0d9488)',
             WebkitBackgroundClip:'text', backgroundClip:'text', color:'transparent' }}>ФАҲМ</span>

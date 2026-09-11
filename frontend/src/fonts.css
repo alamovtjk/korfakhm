@@ -56,3 +56,27 @@
   src: url('/fonts/unbounded-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+
+/* ── Noto Serif — только для словесного знака «КОРФАҲМ» ──
+   Unbounded (и Manrope, JetBrains Mono) не содержат таджикскую Ҳ
+   (U+04B2/04B3, "ха с хвостиком") даже в полном файле с апстрима —
+   не только у Google в CSS2-подсете. Буква прямо в названии бренда,
+   поэтому здесь взят Noto Serif (спроектирован на максимальный охват
+   Unicode) и явно засабсечен по всему кириллическому блоку
+   (U+0400-04FF), а не по обрезанному диапазону Google. */
+@font-face {
+  font-family: 'Noto Serif Brand';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/noto-serif-cyrillic.woff2') format('woff2');
+  unicode-range: U+0400-04FF, U+2116;
+}
+@font-face {
+  font-family: 'Noto Serif Brand';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/noto-serif-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+2000-206F, U+2122;
+}
