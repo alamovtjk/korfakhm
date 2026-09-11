@@ -1,8 +1,33 @@
 import os
+from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
+
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite+aiosqlite:///./tajcareer.db')
+# Разные интеграции Postgres на Vercel называют свою переменную по-разному
+# (Neon из Marketplace обычно даёт DATABASE_URL, "родной" Vercel Postgres —
+# POSTGRES_URL) — проверяем все известные варианты, чтобы не завязываться
+# на конкретный продукт.
+_PG_ENV_CANDIDATES = ('DATABASE_URL', 'POSTGRES_URL', 'POSTGRES_PRISMA_URL', 'POSTGRES_URL_NON_POOLING')
+_raw_url = next((os.getenv(k) for k in _PG_ENV_CANDIDATES if os.getenv(k)), None)
+
+# asyncpg получает каждый query-параметр URL как именованный аргумент
+# connect() и падает на незнакомых — Neon добавляет в строку подключения
+# "channel_binding", которого asyncpg не знает (это специфика psycopg).
+# "sslmode" asyncpg понимает сам, его не трогаем.
+_ASYNCPG_UNSUPPORTED_PARAMS = {'channel_binding'}
+
+
+def _normalize_pg_url(raw: str) -> str:
+    # Postgres-провайдеры отдают "postgres://" или "postgresql://" —
+    # SQLAlchemy async нужен драйвер явно, через "+asyncpg".
+    raw = raw.replace('postgres://', 'postgresql+asyncpg://', 1).replace('postgresql://', 'postgresql+asyncpg://', 1)
+    parts = urlsplit(raw)
+    query = [(k, v) for k, v in parse_qsl(parts.query) if k not in _ASYNCPG_UNSUPPORTED_PARAMS]
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
+
+
+DATABASE_URL = _normalize_pg_url(_raw_url) if _raw_url else 'sqlite+aiosqlite:///./tajcareer.db'
 
 engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 
