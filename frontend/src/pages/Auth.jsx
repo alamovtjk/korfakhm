@@ -51,6 +51,7 @@ export default function Auth() {
       wrong: 'Неверный email или пароль',
       taken: 'Этот email уже зарегистрирован',
       fill: 'Заполните все поля',
+      network: 'Не удалось подключиться к серверу. Попробуйте ещё раз через минуту.',
       sub_login:  'Войдите, чтобы публиковать и управлять вакансиями',
       sub_reg:    'Создайте аккаунт и начните размещать вакансии',
       name_ph:    'Алишер Назаров',
@@ -63,6 +64,7 @@ export default function Auth() {
       wrong: 'Email ё рамз нодуруст',
       taken: 'Ин email аллакай сабтном шудааст',
       fill: 'Ҳамаи майдонҳоро пур кунед',
+      network: 'Пайваст ба сервер муяссар нашуд. Лутфан баъди як дақиқа боз кӯшиш кунед.',
       sub_login:  'Даромадед то вакансияҳоро нашр ва идора кунед',
       sub_reg:    'Аккаунт созед ва вакансия гузоштанро оғоз кунед',
       name_ph:    'Алишер Назаров',
@@ -81,10 +83,10 @@ export default function Auth() {
 
     if (tab === 'login') {
       const res = await login(email.trim(), password)
-      if (res?.error) { setError(t.wrong); setLoading(false); return }
+      if (res?.error) { setError(res.error === 'network' ? t.network : t.wrong); setLoading(false); return }
     } else {
       const res = await register(name.trim(), email.trim(), password)
-      if (res?.error === 'email_taken') { setError(t.taken); setLoading(false); return }
+      if (res?.error) { setError(res.error === 'network' ? t.network : t.taken); setLoading(false); return }
     }
 
     setLoading(false)
