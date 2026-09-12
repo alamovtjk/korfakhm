@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useId } from 'react'
 import { X, Send, RotateCcw } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '../contexts/ThemeContext'
@@ -61,35 +61,49 @@ async function fetchReply(message, lang, history) {
   }
 }
 
-/* ── AIDA robot face ─────────────────────────────────────────────── */
+/* ── AIDA robot mascot: белая «голова» с гибкими ушками-антеннами и
+   тёмным экраном-лицом — вдохновлено референсным 3D-роботом, но в
+   фирменных цветах сайта (фиолет/бирюза) и плоским SVG вместо рендера. */
 function AidaFace({ size = 40, isTyping = false }) {
+  const uid = useId().replace(/:/g, '')
+  const earId = `aida-ear-${uid}`
+  const eyeId = `aida-eye-${uid}`
   return (
-    <div style={{
-      width: size, height: size, borderRadius: size * 0.3,
-      background: 'linear-gradient(135deg, #7c3aed 0%, #0d9488 100%)',
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      gap: Math.max(3, size * 0.08), flexShrink: 0, position: 'relative', overflow: 'hidden',
-      boxShadow: '0 4px 14px rgba(124,58,237,0.4)',
-    }}>
-      <div style={{ position:'absolute', top:0, left:0, right:0, height:'45%',
-        background:'linear-gradient(to bottom, rgba(255,255,255,0.22), transparent)' }} />
-      <div style={{ display:'flex', gap: size * 0.15 }}>
-        {[0,1].map(i => (
-          <div key={i} style={{
-            width: size * 0.16, height: size * 0.16, borderRadius: 2,
-            background: '#fff',
-            animation: isTyping ? 'aida-pulse .8s ease-in-out infinite' : 'aida-blink 4s ease-in-out infinite',
-            animationDelay: `${i * 0.15}s`,
-          }} />
-        ))}
-      </div>
-      <div style={{
-        width: size * 0.38, height: size * 0.16,
-        borderBottom: '2px solid rgba(255,255,255,0.75)',
-        borderRadius: isTyping ? 4 : '0 0 50px 50px',
-        transition: 'border-radius .3s',
-      }} />
-    </div>
+    <svg
+      width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true"
+      style={{ flexShrink: 0, display: 'block', overflow: 'visible', filter: 'drop-shadow(0 3px 10px rgba(124,58,237,0.35))' }}
+    >
+      <defs>
+        <linearGradient id={earId} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#a78bfa" />
+          <stop offset="100%" stopColor="#0d9488" />
+        </linearGradient>
+        <linearGradient id={eyeId} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#5eead4" />
+          <stop offset="100%" stopColor="#a78bfa" />
+        </linearGradient>
+      </defs>
+
+      {/* ушки-антенны */}
+      <ellipse cx="9" cy="21" rx="6.2" ry="11" fill={`url(#${earId})`} transform="rotate(-30 9 21)" />
+      <ellipse cx="55" cy="21" rx="6.2" ry="11" fill={`url(#${earId})`} transform="rotate(30 55 21)" />
+
+      {/* голова */}
+      <rect x="7" y="9" width="50" height="46" rx="17" fill="#ffffff" />
+      <path d="M11 20 Q32 5 53 20" stroke="rgba(255,255,255,0.9)" strokeWidth="5" strokeLinecap="round" opacity="0.5" />
+
+      {/* экран */}
+      <rect x="14" y="17" width="36" height="27" rx="10" fill="#171529" />
+
+      {/* глаза — закрытые, довольные */}
+      <path d="M22 30.5 Q26.5 25 31 30.5" stroke={`url(#${eyeId})`} strokeWidth="3.2" strokeLinecap="round" fill="none"
+        style={{ transformBox: 'fill-box', transformOrigin: 'center', animation: isTyping ? 'aida-pulse .8s ease-in-out infinite' : 'aida-blink 4.5s ease-in-out infinite' }} />
+      <path d="M33 30.5 Q37.5 25 42 30.5" stroke={`url(#${eyeId})`} strokeWidth="3.2" strokeLinecap="round" fill="none"
+        style={{ transformBox: 'fill-box', transformOrigin: 'center', animation: isTyping ? 'aida-pulse .8s ease-in-out infinite .15s' : 'aida-blink 4.5s ease-in-out infinite .15s' }} />
+
+      {/* подбородок-индикатор */}
+      <circle cx="32" cy="50.5" r="2.6" fill="#7c3aed" />
+    </svg>
   )
 }
 
@@ -399,22 +413,13 @@ export default function ChatWidget() {
                     onClick={() => setOpen(true)}
                     style={{
                       position:'relative', width:64, height:64, borderRadius:20, border:'none', cursor:'pointer',
-                      background:'linear-gradient(135deg,#7c3aed 0%,#0d9488 100%)',
-                      boxShadow:'0 8px 32px rgba(124,58,237,0.55), inset 0 1px 0 rgba(255,255,255,0.22)',
-                      overflow:'hidden', touchAction:'manipulation',
+                      background:'linear-gradient(135deg, rgba(124,58,237,0.18), rgba(13,148,136,0.18))',
+                      boxShadow:'0 8px 32px rgba(124,58,237,0.5), inset 0 1px 0 rgba(255,255,255,0.4)',
+                      display:'flex', alignItems:'center', justifyContent:'center',
+                      touchAction:'manipulation',
                     }}
                   >
-                    <div style={{ position:'absolute', top:0, left:0, right:0, height:'45%',
-                      background:'linear-gradient(to bottom,rgba(255,255,255,0.2),transparent)', borderRadius:'20px 20px 0 0' }} />
-                    <div style={{ position:'relative', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', gap:6 }}>
-                      <div style={{ display:'flex', gap:9 }}>
-                        {[0,1].map(i => (
-                          <div key={i} style={{ width:11, height:11, borderRadius:3, background:'#fff',
-                            boxShadow:'0 0 8px rgba(255,255,255,0.9)', animation:'aida-blink 4s ease-in-out infinite', animationDelay:`${i*0.12}s` }} />
-                        ))}
-                      </div>
-                      <div style={{ width:26, height:10, borderBottom:'2px solid rgba(255,255,255,0.8)', borderRadius:'0 0 50px 50px' }} />
-                    </div>
+                    <AidaFace size={42} isTyping={loading} />
                     {hasNew && (
                       <span style={{ position:'absolute', top:-6, right:-6, width:18, height:18, borderRadius:'50%',
                         background:'#ef4444', fontSize:9, fontWeight:800, color:'#fff',
@@ -531,22 +536,12 @@ export default function ChatWidget() {
                       onClick={() => { if (!wasDragged.current) setOpen(o => !o) }}
                       style={{
                         position:'relative', width:64, height:64, borderRadius:20, border:'none', cursor:'grab',
-                        background:'linear-gradient(135deg,#7c3aed 0%,#0d9488 100%)',
-                        boxShadow:'0 8px 32px rgba(124,58,237,0.55), inset 0 1px 0 rgba(255,255,255,0.22)',
-                        overflow:'hidden',
+                        background:'linear-gradient(135deg, rgba(124,58,237,0.18), rgba(13,148,136,0.18))',
+                        boxShadow:'0 8px 32px rgba(124,58,237,0.5), inset 0 1px 0 rgba(255,255,255,0.4)',
+                        display:'flex', alignItems:'center', justifyContent:'center',
                       }}
                     >
-                      <div style={{ position:'absolute', top:0, left:0, right:0, height:'45%',
-                        background:'linear-gradient(to bottom,rgba(255,255,255,0.2),transparent)', borderRadius:'20px 20px 0 0' }} />
-                      <div style={{ position:'relative', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'100%', gap:6 }}>
-                        <div style={{ display:'flex', gap:9 }}>
-                          {[0,1].map(i => (
-                            <div key={i} style={{ width:11, height:11, borderRadius:3, background:'#fff',
-                              boxShadow:'0 0 8px rgba(255,255,255,0.9)', animation:'aida-blink 4s ease-in-out infinite', animationDelay:`${i*0.12}s` }} />
-                          ))}
-                        </div>
-                        <div style={{ width:26, height:10, borderBottom:'2px solid rgba(255,255,255,0.8)', borderRadius:'0 0 50px 50px' }} />
-                      </div>
+                      <AidaFace size={42} isTyping={loading} />
                       {hasNew && (
                         <motion.span initial={{ scale:0 }} animate={{ scale:1 }}
                           style={{ position:'absolute', top:-6, right:-6, width:18, height:18, borderRadius:'50%',
