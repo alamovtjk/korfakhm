@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLang } from '../contexts/LangContext'
 import { useAuth } from '../contexts/AuthContext'
+import { useSeo } from '../hooks/useSeo'
 
 export default function Auth() {
   const navigate  = useNavigate()
@@ -12,6 +13,16 @@ export default function Auth() {
   const { isDark } = useTheme()
   const { lang }   = useLang()
   const { register, login } = useAuth()
+  const tj = lang === 'tj'
+
+  useSeo({
+    title: tj ? 'Воридшавӣ ва бақайдгирӣ' : 'Вход и регистрация',
+    description: tj
+      ? 'Ба ҳисоби КОРФАҲМ ворид шавед, то натиҷаҳои санҷишро нигоҳ доред ва ба вакансияҳо муроҷиат кунед.'
+      : 'Войдите в аккаунт КОРФАҲМ, чтобы сохранять результаты тестов и откликаться на вакансии.',
+    path: '/auth',
+    noindex: true,
+  })
 
   const from = location.state?.from || '/'
 

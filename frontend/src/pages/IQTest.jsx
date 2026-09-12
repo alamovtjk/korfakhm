@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLang } from '../contexts/LangContext'
 import { useAuth } from '../contexts/AuthContext'
+import { useSeo } from '../hooks/useSeo'
 import { IQ_QUESTIONS, IQ_CATEGORIES, IQ_DURATION, calcIQ } from '../data/iqQuestions'
 
 const OPTION_LETTERS = ['А', 'Б', 'В', 'Г']
@@ -385,6 +386,15 @@ export default function IQTest() {
   const { isDark } = useTheme()
   const { lang }   = useLang()
   const { saveResult } = useAuth()
+  const tj = lang === 'tj'
+
+  useSeo({
+    title: tj ? 'Санҷиши IQ онлайн ройгон' : 'IQ-тест онлайн бесплатно',
+    description: tj
+      ? 'Санҷиши ройгони IQ-ро бо забонҳои русӣ ва тоҷикӣ гузаред ва сатҳи зеҳни худро бифаҳмед.'
+      : 'Пройди бесплатный IQ-тест на русском и таджикском языках и узнай свой уровень интеллекта.',
+    path: '/iq',
+  })
 
   const [phase,     setPhase]     = useState('intro')
   const [questions, setQuestions] = useState([])

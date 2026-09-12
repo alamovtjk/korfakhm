@@ -4,6 +4,7 @@ import { Loader2, CheckCircle2, Circle, BookOpen, Briefcase, TrendingUp, ArrowLe
 import Navbar from '../components/Navbar'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLang } from '../contexts/LangContext'
+import { useSeo } from '../hooks/useSeo'
 import { vacancyService } from '../services/vacancyService'
 
 const DEMO_PLAN = {
@@ -35,7 +36,18 @@ export default function CareerPlan() {
   const { profession } = useParams()
   const navigate = useNavigate()
   const { isDark } = useTheme()
-  const { t } = useLang()
+  const { t, lang } = useLang()
+  const tj = lang === 'tj'
+
+  useSeo({
+    title: tj ? `Нақшаи рушд — ${profession}` : `План развития — ${profession}`,
+    description: tj
+      ? 'Нақшаи қадам ба қадами омӯзиш ва рушд дар касб бо захираҳо ва вазифаҳо.'
+      : 'Пошаговый план обучения и роста в профессии с ресурсами и задачами.',
+    path: `/plan/${encodeURIComponent(profession || '')}`,
+    noindex: true,
+  })
+
   const [plan, setPlan] = useState(null)
   const [loading, setLoading] = useState(true)
   const [checked, setChecked] = useState({})

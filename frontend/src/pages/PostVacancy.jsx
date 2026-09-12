@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLang } from '../contexts/LangContext'
 import { useAuth } from '../contexts/AuthContext'
+import { useSeo } from '../hooks/useSeo'
 import { vacancyService } from '../services/vacancyService'
 
 const EMPTY = { company: '', position: '', salary: '', city: '', type: 'Офис', category: 'IT', description: '', contact: '' }
@@ -12,8 +13,18 @@ const EMPTY = { company: '', position: '', salary: '', city: '', type: 'Офис
 export default function PostVacancy() {
   const navigate = useNavigate()
   const { isDark } = useTheme()
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const { user } = useAuth()
+  const tj = lang === 'tj'
+
+  useSeo({
+    title: tj ? 'Вакансия гузоштан' : 'Разместить вакансию',
+    description: tj
+      ? 'Вакансияро ройгон гузоред ва дар Тоҷикистон зуд кормандро пайдо кунед.'
+      : 'Разместите вакансию бесплатно и найдите сотрудника в Таджикистане быстро.',
+    path: '/post-vacancy',
+  })
+
   const [form, setForm] = useState({ ...EMPTY, contact: user?.email || '' })
   const [errors, setErrors] = useState({})
   const [submitError, setSubmitError] = useState('')

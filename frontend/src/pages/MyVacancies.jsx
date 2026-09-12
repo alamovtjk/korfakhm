@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLang } from '../contexts/LangContext'
 import { useAuth } from '../contexts/AuthContext'
+import { useSeo } from '../hooks/useSeo'
 import { vacancyService } from '../services/vacancyService'
 
 const CATEGORIES = ['IT','Дизайн','Маркетинг','Управление','Финансы','Медицина','Образование','Аналитика','Бизнес','Другое']
@@ -95,6 +96,16 @@ export default function MyVacancies() {
   const { isDark } = useTheme()
   const { lang }   = useLang()
   const { user }   = useAuth()
+  const tj = lang === 'tj'
+
+  useSeo({
+    title: tj ? 'Вакансияҳои ман' : 'Мои вакансии',
+    description: tj
+      ? 'Вакансияҳои ҷойгузошташударо идора кунед: таҳрир, нест кардан, пайгирии муроҷиатҳо.'
+      : 'Управляй размещёнными вакансиями: редактируй, удаляй, отслеживай отклики.',
+    path: '/my-vacancies',
+    noindex: true,
+  })
 
   const [vacancies, setVacancies] = useState([])
   const [editing,   setEditing]   = useState(null)

@@ -4,6 +4,7 @@ import { Trophy, ArrowRight, RotateCcw, Sparkles, Brain, Lightbulb, AlertTriangl
 import Navbar from '../components/Navbar'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLang } from '../contexts/LangContext'
+import { useSeo } from '../hooks/useSeo'
 import { PROFESSION_SKILLS } from '../data/professionSkills'
 
 const CATEGORY_GRADIENT = {
@@ -164,6 +165,17 @@ export default function Results() {
   const navigate = useNavigate()
   const { isDark } = useTheme()
   const { lang, t } = useLang()
+  const tj = lang === 'tj'
+
+  useSeo({
+    title: tj ? 'Натиҷаҳои санҷиши касб' : 'Результаты теста на профессию',
+    description: tj
+      ? 'Касбҳои беҳтарини шумо тибқи натиҷаи санҷиши AI ва нақшаи рушди шахсӣ.'
+      : 'Твои идеальные профессии по результатам AI-теста и персональный план развития.',
+    path: '/results',
+    noindex: true,
+  })
+
   const [results, setResults] = useState(null)
   const [showRiasec, setShowRiasec] = useState(false)
 

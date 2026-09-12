@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useLang } from '../contexts/LangContext'
+import { useSeo } from '../hooks/useSeo'
 import { vacancyService } from '../services/vacancyService'
 
 /* ── Печатающаяся вторая строка заголовка ─────────────────── */
@@ -77,6 +78,16 @@ export default function Landing() {
   const navigate    = useNavigate()
   const { t, lang } = useLang()
   const tj = lang === 'tj'
+
+  useSeo({
+    title: tj
+      ? 'КОРФАҲМ — Санҷиши AI барои интихоби касб дар Тоҷикистон'
+      : 'КОРФАҲМ — AI-тест на профессию и карьерная платформа Таджикистана',
+    description: tj
+      ? 'Санҷиши ройгони AI барои касб ва IQ-ро гузаред, нақшаи рушди шахсӣ гиред ва дар Тоҷикистон кор ёбед.'
+      : 'Пройди бесплатный AI-тест на профессию и IQ-тест, получи персональный план развития и найди вакансию в Таджикистане.',
+    path: '/',
+  })
 
   const [vacancies, setVacancies] = useState([])
   useEffect(() => {

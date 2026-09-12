@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLang } from '../contexts/LangContext'
+import { useSeo } from '../hooks/useSeo'
 import { adminAuth, adminVacancyService } from '../services/adminService'
 
 const EMPTY_FORM = { company: '', position: '', category: 'IT', salary: '', city: 'Душанбе', type: 'Офис', description: '', contact: '' }
@@ -178,6 +179,14 @@ export default function Admin() {
   const navigate = useNavigate()
   const { isDark } = useTheme()
   const { t } = useLang()
+
+  useSeo({
+    title: 'Админ-панель',
+    description: 'Управление вакансиями и заявками КОРФАҲМ.',
+    path: '/admin',
+    noindex: true,
+  })
+
   const [authed, setAuthed] = useState(adminAuth.isLoggedIn())
   const [tab, setTab] = useState('vacancies')
   const [vacancies, setVacancies] = useState([])

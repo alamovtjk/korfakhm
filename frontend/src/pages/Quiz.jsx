@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLang } from '../contexts/LangContext'
 import { useAuth } from '../contexts/AuthContext'
+import { useSeo } from '../hooks/useSeo'
 
 // ── Robot face ────────────────────────────────────────────────────────────────
 function RobotFace({ isTyping }) {
@@ -101,6 +102,15 @@ export default function Quiz() {
   const { isDark }   = useTheme()
   const { lang }     = useLang()
   const { saveResult } = useAuth()
+  const tj = lang === 'tj'
+
+  useSeo({
+    title: tj ? 'Санҷиши касб — 12 савол, 10–15 дақиқа' : 'Тест на профессию — 12 вопросов, 10–15 минут',
+    description: tj
+      ? 'Санҷиши ройгони касбро гузаред ва бифаҳмед, кадом касбҳо ба шумо мувофиқанд. Ҳамагӣ 12 савол.'
+      : 'Пройди бесплатный тест на профессию и узнай, какие профессии подходят именно тебе. Всего 12 вопросов.',
+    path: '/quiz',
+  })
 
   const [apiHistory, setApiHistory] = useState([])
   const [messages,   setMessages]   = useState([])

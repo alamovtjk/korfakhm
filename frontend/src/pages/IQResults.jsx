@@ -4,6 +4,7 @@ import { Trophy, ArrowRight, RotateCcw, Brain, TrendingUp, Target } from 'lucide
 import Navbar from '../components/Navbar'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLang } from '../contexts/LangContext'
+import { useSeo } from '../hooks/useSeo'
 import { getIQLevel, IQ_CATEGORIES } from '../data/iqQuestions'
 
 // Bell curve distribution zones for visual
@@ -80,6 +81,17 @@ export default function IQResults() {
   const navigate = useNavigate()
   const { isDark } = useTheme()
   const { lang } = useLang()
+  const tj = lang === 'tj'
+
+  useSeo({
+    title: tj ? 'Натиҷаҳои санҷиши IQ' : 'Результаты IQ-теста',
+    description: tj
+      ? 'Сатҳи IQ-и шумо ва муқоиса бо тақсимоти аҳолӣ.'
+      : 'Твой уровень IQ и сравнение с распределением по популяции.',
+    path: '/iq-results',
+    noindex: true,
+  })
+
   const [data, setData] = useState(null)
   const [show, setShow] = useState(false)
 

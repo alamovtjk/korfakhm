@@ -208,8 +208,6 @@ h4, h5 { font-family: 'Manrope', sans-serif; }
 :root.dark .blob.v { opacity: .58; }
 :root.dark .blob.t { opacity: .50; }
 :root.dark .blob.f { opacity: .40; }
-.blob.b { display: none; }
-.sky, .neb, .gx-field, .ship { display: none; }
 
 /* Локальные пятна ниже по странице — обычные .blob, но абсолютно
    спозиционированные внутри секции (едут вместе с контентом), чтобы

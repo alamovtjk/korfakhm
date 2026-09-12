@@ -3,6 +3,7 @@ import { ArrowRight, ClipboardList, Trophy, BookOpen, Target, Sparkles } from 'l
 import Navbar from '../components/Navbar'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLang } from '../contexts/LangContext'
+import { useSeo } from '../hooks/useSeo'
 
 const SAMPLE_PROFESSIONS = [
   { name: 'Frontend-разработчик', emoji: '💻', category: 'IT', score: 92 },
@@ -15,7 +16,18 @@ const SAMPLE_PROFESSIONS = [
 export default function Dashboard() {
   const navigate = useNavigate()
   const { isDark } = useTheme()
-  const { t } = useLang()
+  const { t, lang } = useLang()
+  const tj = lang === 'tj'
+
+  useSeo({
+    title: tj ? 'Кабинети шахсӣ' : 'Личный кабинет',
+    description: tj
+      ? 'Натиҷаҳои санҷиш, касбҳои тавсияшуда ва нақшаи рушд дар як ҷо.'
+      : 'Твои результаты тестов, рекомендованные профессии и план развития в одном месте.',
+    path: '/dashboard',
+    noindex: true,
+  })
+
   const results = JSON.parse(localStorage.getItem('quiz_results') || 'null')
   const professions = results?.professions || SAMPLE_PROFESSIONS
 

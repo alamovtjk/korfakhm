@@ -3,5 +3,8 @@ Allow: /
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /my-vacancies
+Disallow: /results
+Disallow: /iq-results
+Disallow: /plan/
 
 Sitemap: https://korfakhm.vercel.app/sitemap.xml

@@ -4,6 +4,7 @@ import { Briefcase, Building2, MapPin, Search, X, ChevronRight, SlidersHorizonta
 import Navbar from '../components/Navbar'
 import { useTheme } from '../contexts/ThemeContext'
 import { useLang } from '../contexts/LangContext'
+import { useSeo } from '../hooks/useSeo'
 import { vacancyService } from '../services/vacancyService'
 
 const TYPE_COLORS = {
@@ -87,6 +88,15 @@ export default function Vacancies() {
   const navigate = useNavigate()
   const { isDark } = useTheme()
   const { lang } = useLang()
+  const tj = lang === 'tj'
+
+  useSeo({
+    title: tj ? 'Вакансияҳо дар Тоҷикистон' : 'Вакансии в Таджикистане',
+    description: tj
+      ? 'Вакансияҳои воқеӣ дар Душанбе ва дигар шаҳрҳои Тоҷикистон. Бе резюме кор ёбед.'
+      : 'Актуальные вакансии в Душанбе и других городах Таджикистана. Найди работу без резюме.',
+    path: '/vacancies',
+  })
 
   const [allVacancies, setAllVacancies] = useState([])
   const [loading, setLoading] = useState(true)
